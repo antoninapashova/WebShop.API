@@ -1,7 +1,7 @@
 package com.example.webshopapi.controller;
 
-import com.example.webshopapi.dto.AuthenticationRequest;
-import com.example.webshopapi.dto.SignupRequest;
+import com.example.webshopapi.dto.requestObjects.AuthenticationRequest;
+import com.example.webshopapi.dto.requestObjects.SignupRequest;
 import com.example.webshopapi.dto.UserDto;
 import com.example.webshopapi.service.auth.AuthService;
 import com.example.webshopapi.utils.JwtUtil;
