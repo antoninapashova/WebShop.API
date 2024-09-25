@@ -8,4 +8,5 @@ import java.util.List;
 public interface ProductService {
     ProductDto addProduct(CreateProductRequest createProductRequest) throws Exception;
     List<ProductDto> retrieveAllProducts();
+    void initProducts();
 }
