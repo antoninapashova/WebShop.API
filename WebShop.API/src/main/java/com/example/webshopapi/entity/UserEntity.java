@@ -1,9 +1,6 @@
 package com.example.webshopapi.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,6 +18,10 @@ public class UserEntity extends BaseEntity {
     private String lastName;
     private String email;
     private String password;
+
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private CartEntity cart;
 }
