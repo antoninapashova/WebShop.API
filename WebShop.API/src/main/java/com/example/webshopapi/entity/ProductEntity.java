@@ -1,11 +1,12 @@
 package com.example.webshopapi.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -18,4 +19,7 @@ public class ProductEntity extends BaseEntity {
     private int quantity;
     private double price;
     private boolean isDeleted;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product", cascade = CascadeType.ALL)
+    private List<CartItemEntity> items;
 }
