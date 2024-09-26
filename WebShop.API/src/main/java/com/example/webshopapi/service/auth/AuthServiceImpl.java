@@ -11,6 +11,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 @Service
 @AllArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -31,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void initAdmin() {
+    public void initAccounts() {
         if (userRepository.count() > 0) {
             return;
         }
@@ -42,9 +45,17 @@ public class AuthServiceImpl implements AuthService {
         admin.setFirstName("Admin");
         admin.setLastName("Admin");
         admin.setEmail("admin.adminov@abv.bg");
-
         admin.setRole(UserRole.ADMIN);
-        userRepository.save(admin);
+
+        UserEntity customer = new UserEntity();
+        customer.setUsername("customer");
+        customer.setPassword(passwordEncoder.encode("12345"));
+        customer.setFirstName("Customer");
+        customer.setLastName("Customer");
+        customer.setEmail("customer.customer@abv.bg");
+        customer.setRole(UserRole.CUSTOMER);
+
+        userRepository.saveAll(new ArrayList<>(Arrays.asList(admin, customer)));
     }
 
     @Override

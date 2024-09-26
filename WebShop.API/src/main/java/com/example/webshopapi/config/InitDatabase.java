@@ -17,7 +17,7 @@ public class InitDatabase implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        authService.initAdmin();
+        authService.initAccounts();
         productService.initProducts();
     }
 }
