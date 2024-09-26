@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -17,9 +16,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CartEntity extends BaseEntity {
 
-    @Column(unique = true, nullable = false)
-    private UUID userID;
+    @OneToOne
+    @JoinColumn(name="user_id")
+    private UserEntity user;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cart", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "cart", orphanRemoval = true)
     private List<CartItemEntity> items;
 }
