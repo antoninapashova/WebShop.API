@@ -16,7 +16,7 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping("add-product")
-    public ResponseEntity<ProductDto> addProduct(@ModelAttribute CreateProductRequest createProductRequest) throws Exception {
+    public ResponseEntity<ProductDto> addProduct(@RequestBody CreateProductRequest createProductRequest) throws Exception {
         ProductDto newProduct = productService.addProduct(createProductRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
     }
