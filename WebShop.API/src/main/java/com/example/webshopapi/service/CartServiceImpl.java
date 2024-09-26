@@ -1,5 +1,6 @@
 package com.example.webshopapi.service;
 
+import com.example.webshopapi.dto.CartDto;
 import com.example.webshopapi.entity.CartEntity;
 import com.example.webshopapi.entity.CartItemEntity;
 import com.example.webshopapi.entity.ProductEntity;
@@ -8,6 +9,7 @@ import com.example.webshopapi.repository.CartRepository;
 import com.example.webshopapi.repository.ProductRepository;
 import com.example.webshopapi.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ public class CartServiceImpl implements CartService {
     private final ProductRepository productRepository;
     private final CartItemRepository cartItemRepository;
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public void addProductToCart(UUID productId, UUID userId) throws Exception {
@@ -28,6 +31,15 @@ public class CartServiceImpl implements CartService {
         if (cart == null) throw new Exception("Cart not found");
 
         assignItemToCartAsync(cart, productId);
+    }
+
+    @Override
+    public CartDto getCartByUserId(UUID userId) {
+        CartEntity cart = cartRepository.findByUserId(userId);
+
+        var cartEntityDto = modelMapper.map(cart, CartDto.class);
+        cartEntityDto.setTotalPrice(cart.getItems().stream().mapToDouble(i -> i.getPrice() * i.getQuantity()).sum());
+        return cartEntityDto;
     }
 
     private void assignItemToCartAsync(CartEntity cart, UUID productId) {
