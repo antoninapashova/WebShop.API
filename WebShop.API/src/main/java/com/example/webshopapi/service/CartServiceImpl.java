@@ -3,7 +3,6 @@ package com.example.webshopapi.service;
 import com.example.webshopapi.entity.CartEntity;
 import com.example.webshopapi.entity.CartItemEntity;
 import com.example.webshopapi.entity.ProductEntity;
-import com.example.webshopapi.entity.UserEntity;
 import com.example.webshopapi.repository.CartItemRepository;
 import com.example.webshopapi.repository.CartRepository;
 import com.example.webshopapi.repository.ProductRepository;
@@ -47,25 +46,18 @@ public class CartServiceImpl implements CartService {
     }
 
     private CartEntity ensureUserHasCart(UUID userId) {
-        boolean hasCart = cartRepository.existsByUserID(userId);
+        boolean hasCart = cartRepository.existsByUserId(userId);
         if (!hasCart) return createUserCart(userId);
         return getUserCartAsync(userId);
     }
 
     private CartEntity createUserCart(UUID userId) {
-       CartEntity cart = new CartEntity(userId, new ArrayList<>());
-       setCartToUser(userId, cart);
-       return cartRepository.save(cart);
+        var user = userRepository.getUserEntityById(userId);
+        CartEntity cart = new CartEntity(user, new ArrayList<>());
+        return cartRepository.save(cart);
     }
 
     private CartEntity getUserCartAsync(UUID userId) {
-        return cartRepository.findByUserID(userId);
-    }
-
-    private void setCartToUser(UUID userId, CartEntity cart) {
-        UserEntity userEntity = userRepository.getUserEntityById(userId);
-        if(userEntity == null) throw new NullPointerException("User does not exist!");
-        userEntity.setCart(cart);
-        userRepository.save(userEntity);
+        return cartRepository.findByUserId(userId);
     }
 }

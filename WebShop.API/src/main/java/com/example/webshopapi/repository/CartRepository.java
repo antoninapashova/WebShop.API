@@ -8,6 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface CartRepository extends JpaRepository<CartEntity, UUID> {
-    boolean existsByUserID(UUID userId);
-    CartEntity findByUserID(UUID userId);
+    boolean existsByUserId(UUID userId);
+    CartEntity findByUserId(UUID userId);
 }
