@@ -1,6 +1,7 @@
 package com.example.webshopapi.service;
 
 import com.example.webshopapi.dto.CartDto;
+import com.example.webshopapi.dto.requestObjects.ChangeCartItemQuantityRequest;
 import com.example.webshopapi.entity.CartEntity;
 import com.example.webshopapi.entity.CartItemEntity;
 import com.example.webshopapi.entity.ProductEntity;
@@ -36,10 +37,39 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartDto getCartByUserId(UUID userId) {
         CartEntity cart = cartRepository.findByUserId(userId);
-
         var cartEntityDto = modelMapper.map(cart, CartDto.class);
         cartEntityDto.setTotalPrice(cart.getItems().stream().mapToDouble(i -> i.getPrice() * i.getQuantity()).sum());
+
         return cartEntityDto;
+    }
+
+    @Override
+    public void setCartItemQuantity(String cartItemId, int quantity) {
+        var item = findItemById(cartItemId);
+
+        if(quantity<=0){
+            cartItemRepository.delete(item);
+        }else {
+            item.setQuantity(quantity);
+            cartItemRepository.save(item);
+        }
+    }
+
+    @Override
+    public void changeItemQuantity(ChangeCartItemQuantityRequest changeCartItemQuantity) {
+       var item = findItemById(changeCartItemQuantity.cartItemId);
+
+        if(changeCartItemQuantity.isIncreaseChange){
+            item.setQuantity(item.getQuantity() + 1);
+        }else {
+            item.setQuantity(item.getQuantity() - 1);
+        }
+
+        if(item.getQuantity() == 0) {
+            cartItemRepository.delete(item);
+        }else{
+            cartItemRepository.save(item);
+        }
     }
 
     private void assignItemToCartAsync(CartEntity cart, UUID productId) {
@@ -71,5 +101,11 @@ public class CartServiceImpl implements CartService {
 
     private CartEntity getUserCartAsync(UUID userId) {
         return cartRepository.findByUserId(userId);
+    }
+
+    private CartItemEntity findItemById(String itemId) {
+        var item = cartItemRepository.findById(UUID.fromString(itemId)).orElse(null);
+        if (item == null) throw new NullPointerException("Item not found for id " + itemId);
+        return item;
     }
 }
