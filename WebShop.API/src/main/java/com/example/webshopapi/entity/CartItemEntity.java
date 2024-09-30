@@ -1,9 +1,6 @@
 package com.example.webshopapi.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,8 +17,8 @@ public class CartItemEntity extends BaseEntity {
     private int quantity;
     private double price;
 
-    @ManyToOne
-    @JoinColumn(name = "cart_id")
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(nullable = false)
     private CartEntity cart;
 
     @ManyToOne
