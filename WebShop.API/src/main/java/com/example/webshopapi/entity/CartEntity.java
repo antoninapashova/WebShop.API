@@ -20,6 +20,6 @@ public class CartEntity extends BaseEntity {
     @JoinColumn(name="user_id")
     private UserEntity user;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "cart", orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "cart", cascade = CascadeType.REMOVE)
     private List<CartItemEntity> items;
 }
