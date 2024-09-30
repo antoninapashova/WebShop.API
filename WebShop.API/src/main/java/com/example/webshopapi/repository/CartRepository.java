@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface CartRepository extends JpaRepository<CartEntity, UUID> {
     boolean existsByUserId(UUID userId);
     CartEntity findByUserId(UUID userId);
+    CartEntity getCartEntityByUserId(UUID userId);
 }
