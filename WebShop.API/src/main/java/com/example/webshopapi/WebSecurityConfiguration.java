@@ -42,7 +42,7 @@ public class WebSecurityConfiguration {
                         .requestMatchers("/sign-up", "/authenticate", "/all-products")
                         .permitAll()
                         .requestMatchers("/add-product").hasRole("ADMIN")
-                        .requestMatchers("/add-to-cart", "/get-cart").hasRole("CUSTOMER")
+                        .requestMatchers("/add-to-cart", "/get-cart", "/cart/changeItemQuantity", "/cart/setItemQuantity", "/order").hasRole("CUSTOMER")
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
