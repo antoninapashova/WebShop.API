@@ -48,4 +48,25 @@ public class OrderServiceImpl implements OrderService {
 
         cartRepository.delete(cart);
     }
+
+    @Override
+    public List<OrderDto> retrieveAllOrders() {
+        return orderRepository.findAll().stream()
+                .map(order -> {
+                    var mappedOrder = asDto(order);
+                    mappedOrder.setOrderDate(order.getOrderDate().format(CUSTOM_FORMATTER));
+                    mappedOrder.setDeliveryDate(order.getDeliveryDate().format(CUSTOM_FORMATTER));
+                    var user = order.getUser();
+                    mappedOrder.setClientName(user.getFirstName() + " " + user.getLastName());
+                    double totalAmount = order.getOrderItems().stream()
+                            .mapToDouble(item -> item.getQuantity() * item.getPrice()).sum();
+
+                    mappedOrder.setTotalAmount(totalAmount);
+                    return mappedOrder;
+                }).toList();
+    }
+
+    private OrderDto asDto(OrderEntity productEntity) {
+        return modelMapper.map(productEntity, OrderDto.class);
+    }
 }
