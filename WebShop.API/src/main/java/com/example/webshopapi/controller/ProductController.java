@@ -22,7 +22,7 @@ public class ProductController {
     }
 
     @GetMapping("all-products")
-    public ResponseEntity<List<ProductDto>> getAllProduct() throws Exception {
+    public ResponseEntity<List<ProductDto>> getAllProduct() {
         List<ProductDto> allProducts = productService.retrieveAllProducts();
         return ResponseEntity.status(HttpStatus.OK).body(allProducts);
     }
