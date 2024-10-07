@@ -11,8 +11,8 @@ public class TypedResult<T> extends ExecutionResult {
         this.data = data;
     }
 
-    public TypedResult(FailureType failureType, String errorMessage) {
-        super(failureType, errorMessage);
+    public TypedResult(FailureType failureType, String message) {
+        super(failureType, message);
         this.data = null;
     }
 
@@ -20,7 +20,7 @@ public class TypedResult<T> extends ExecutionResult {
         return new TypedResult<>(data);
     }
 
-    public static <T> TypedResult<T> typedFailure(FailureType failureType, String errorMessage) {
-        return new TypedResult<>(failureType, errorMessage);
+    public static <T> TypedResult<T> typedFailure(FailureType failureType, String message) {
+        return new TypedResult<>(failureType, message);
     }
 }

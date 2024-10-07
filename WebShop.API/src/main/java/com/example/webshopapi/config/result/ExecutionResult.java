@@ -6,18 +6,24 @@ import lombok.Getter;
 public class ExecutionResult {
     private final boolean success;
     private final FailureType failureType;
-    private final String errorMessage;
+    private final String message;
 
     public ExecutionResult() {
         this.success = true;
         this.failureType = null;
-        this.errorMessage = null;
+        this.message = null;
+    }
+
+    public ExecutionResult(String message) {
+        this.success=true;
+        this.failureType = null;
+        this.message = message;
     }
 
     public ExecutionResult(FailureType failureType, String errorMessage) {
         this.success = false;
         this.failureType = failureType;
-        this.errorMessage = errorMessage;
+        this.message = errorMessage;
     }
 
     public static ExecutionResult success() {
