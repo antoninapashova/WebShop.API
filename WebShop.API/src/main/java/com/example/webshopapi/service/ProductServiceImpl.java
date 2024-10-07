@@ -41,6 +41,7 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductDto> retrieveAllProducts() {
         return productRepository.findAll()
                 .stream()
+                .filter(product -> !product.isDeleted())
                 .map(this::asDto).toList();
     }
 
