@@ -41,7 +41,7 @@ public class WebSecurityConfiguration {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/sign-up", "/authenticate", "/all-products")
                         .permitAll()
-                        .requestMatchers("/add-product", "/all-orders", "/set-order-status").hasRole("ADMIN")
+                        .requestMatchers("/add-product", "/all-orders", "/set-order-status", "/delete-product/{productId}").hasRole("ADMIN")
                         .requestMatchers("/add-to-cart", "/get-cart", "/cart/changeItemQuantity", "/cart/setItemQuantity", "/order").hasRole("CUSTOMER")
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
