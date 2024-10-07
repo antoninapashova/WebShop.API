@@ -5,7 +5,9 @@ import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.ProductDto;
 import com.example.webshopapi.dto.requestObjects.CreateProductRequest;
+import com.example.webshopapi.entity.CategoryEntity;
 import com.example.webshopapi.entity.ProductEntity;
+import com.example.webshopapi.repository.CategoryRepository;
 import com.example.webshopapi.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -17,10 +19,12 @@ import java.util.UUID;
 @Service
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
 
-    public ProductServiceImpl(ProductRepository productRepository, ModelMapper modelMapper) {
+    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, ModelMapper modelMapper) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -32,7 +36,10 @@ public class ProductServiceImpl implements ProductService {
             throw new Exception(String.format("Product with name %s already exists", createProductRequest.name));
         }
 
+        CategoryEntity category = categoryRepository.findById(UUID.fromString(createProductRequest.getCategoryId())).orElse(null);
+
         ProductEntity product = modelMapper.map(createProductRequest, ProductEntity.class);
+        product.setCategory(category);
         productRepository.save(product);
 
         return modelMapper.map(product, ProductDto.class);
@@ -51,12 +58,13 @@ public class ProductServiceImpl implements ProductService {
         if(productRepository.count() >  0) {
             return;
         }
-
+        CategoryEntity category = categoryRepository.findByName("Sport accessories");
         ProductEntity productEntity = new ProductEntity();
         productEntity.setName("product1");
         productEntity.setQuantity(10);
         productEntity.setPrice(10.5);
         productEntity.setItems(new ArrayList<>());
+        productEntity.setCategory(category);
         productRepository.save(productEntity);
     }
 
