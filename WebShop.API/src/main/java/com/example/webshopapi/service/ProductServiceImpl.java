@@ -2,6 +2,7 @@ package com.example.webshopapi.service;
 
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.FailureType;
+import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.ProductDto;
 import com.example.webshopapi.dto.requestObjects.CreateProductRequest;
 import com.example.webshopapi.entity.ProductEntity;
@@ -71,6 +72,23 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(productEntity);
 
         return new ExecutionResult("Product removed successfully");
+    }
+
+    @Override
+    public TypedResult<ProductDto> updateProduct(String productId, ProductDto productDto) {
+        ProductEntity productEntity = productRepository.findById(UUID.fromString(productId)).orElse(null);
+
+        if(productEntity == null) {
+            return new TypedResult<>(FailureType.NOT_FOUND, "Product not found!");
+        }
+
+        productEntity.setName(productDto.getName());
+        productEntity.setQuantity(productDto.getQuantity());
+        productEntity.setPrice(productDto.getPrice());
+
+        productRepository.save(productEntity);
+
+        return new TypedResult<>(asDto(productEntity));
     }
 
     private ProductDto asDto(ProductEntity productEntity) {
