@@ -42,4 +42,19 @@ public class ProductController {
 
         return ResponseEntity.status(HttpStatus.OK).body(result.getMessage());
     }
+
+    @PutMapping("update-product/{productId}")
+    public ResponseEntity<?> updateProduct(@PathVariable String productId, @RequestBody ProductDto productDto) {
+        if (productId == null || productDto == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        var result = productService.updateProduct(productId, productDto);
+
+        if (result.getFailureType() == FailureType.NOT_FOUND) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result.getData());
+    }
 }
