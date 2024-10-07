@@ -8,4 +8,5 @@ import java.util.UUID;
 public interface OrderService {
     void createOrder(UUID userId);
     List<OrderDto> retrieveAllOrders();
+    void setOrderStatus(UUID orderId, boolean isApproved);
 }
