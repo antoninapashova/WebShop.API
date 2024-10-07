@@ -1,5 +1,7 @@
 package com.example.webshopapi.service;
 
+import com.example.webshopapi.config.result.ExecutionResult;
+import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.dto.ProductDto;
 import com.example.webshopapi.dto.requestObjects.CreateProductRequest;
 import com.example.webshopapi.entity.ProductEntity;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -53,6 +56,20 @@ public class ProductServiceImpl implements ProductService {
         productEntity.setPrice(10.5);
         productEntity.setItems(new ArrayList<>());
         productRepository.save(productEntity);
+    }
+
+    @Override
+    public ExecutionResult deleteProduct(String productId) {
+        ProductEntity productEntity = productRepository.findById(UUID.fromString(productId)).orElse(null);
+
+        if(productEntity == null) {
+             return new ExecutionResult(FailureType.NOT_FOUND, "Product not found!");
+        }
+
+        productEntity.setDeleted(true);
+        productRepository.save(productEntity);
+
+        return new ExecutionResult("Product removed successfully");
     }
 
     private ProductDto asDto(ProductEntity productEntity) {
