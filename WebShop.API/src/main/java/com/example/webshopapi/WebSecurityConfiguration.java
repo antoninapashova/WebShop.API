@@ -41,8 +41,12 @@ public class WebSecurityConfiguration {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/sign-up", "/authenticate", "/all-products")
                         .permitAll()
-                        .requestMatchers("/add-product", "/all-orders", "/set-order-status", "/delete-product/{productId}", "/update-product/{productId}").hasRole("ADMIN")
-                        .requestMatchers("/add-to-cart", "/get-cart", "/cart/changeItemQuantity", "/cart/setItemQuantity", "/order").hasRole("CUSTOMER")
+                        .requestMatchers("/add-product", "/all-orders",
+                                "/set-order-status", "/delete-product/{productId}",
+                                "/update-product/{productId}",
+                                "/all-categories", "/add-category/{categoryName}").hasRole("ADMIN")
+                        .requestMatchers("/add-to-cart", "/get-cart",
+                                "/cart/changeItemQuantity", "/cart/setItemQuantity", "/order").hasRole("CUSTOMER")
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
