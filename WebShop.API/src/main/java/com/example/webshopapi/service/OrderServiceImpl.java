@@ -130,7 +130,7 @@ public class OrderServiceImpl implements OrderService {
         productRepository.save(product);
     }
 
-    private OrderDto asDto(OrderEntity productEntity) {
-        return modelMapper.map(productEntity, OrderDto.class);
+    private OrderDto asDto(OrderEntity orderEntity) {
+        return modelMapper.map(orderEntity, OrderDto.class);
     }
 }
