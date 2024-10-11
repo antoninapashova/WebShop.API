@@ -7,5 +7,6 @@ public class CreateProductRequest {
     public String name;
     public int quantity;
     public double price;
+    public String description;
     public String categoryId;
 }
