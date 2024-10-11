@@ -1,5 +1,7 @@
 package com.example.webshopapi.service.auth;
 
+import com.example.webshopapi.config.result.FailureType;
+import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.requestObjects.SignupRequest;
 import com.example.webshopapi.dto.UserDto;
 import com.example.webshopapi.entity.UserEntity;
@@ -56,6 +58,16 @@ public class AuthServiceImpl implements AuthService {
         customer.setRole(UserRole.CUSTOMER);
 
         userRepository.saveAll(new ArrayList<>(Arrays.asList(admin, customer)));
+    }
+
+    @Override
+    public TypedResult<String> loadUserRole(String username) {
+        UserEntity user = userRepository.findByUsername(username).orElse(null);
+        if(user==null){
+            return new TypedResult<>(FailureType.NOT_FOUND, "User not found");
+        }
+
+        return new TypedResult<>(user.getRole().name());
     }
 
     @Override

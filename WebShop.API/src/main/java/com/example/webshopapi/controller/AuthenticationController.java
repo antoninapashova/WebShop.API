@@ -1,5 +1,8 @@
 package com.example.webshopapi.controller;
 
+import com.example.webshopapi.config.result.FailureType;
+import com.example.webshopapi.config.result.TypedResult;
+import com.example.webshopapi.dto.AuthenticationResponse;
 import com.example.webshopapi.dto.requestObjects.AuthenticationRequest;
 import com.example.webshopapi.dto.requestObjects.SignupRequest;
 import com.example.webshopapi.dto.UserDto;
@@ -24,7 +27,7 @@ public class AuthenticationController {
     private AuthService authService;
 
     @PostMapping("authenticate")
-    public String login(@RequestBody AuthenticationRequest authenticationRequest) {
+    public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) {
         try {
             authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
@@ -33,7 +36,18 @@ public class AuthenticationController {
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        return jwtUtil.generateToken(userDetails.getUsername());
+
+        String token = jwtUtil.generateToken(userDetails.getUsername());
+        TypedResult<String> result = authService.loadUserRole(userDetails.getUsername());
+        if(result.getFailureType() == FailureType.NOT_FOUND) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessage());
+        }
+
+        AuthenticationResponse response = new AuthenticationResponse();
+        response.setToken(token);
+        response.setRole(result.getData());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("sign-up")
