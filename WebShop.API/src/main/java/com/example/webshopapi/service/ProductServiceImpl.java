@@ -56,7 +56,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void initProducts() {
-        if(productRepository.count() >  0) {
+        if (productRepository.count() > 0) {
             return;
         }
         CategoryEntity category = categoryRepository.findByName("Sport accessories");
@@ -73,8 +73,8 @@ public class ProductServiceImpl implements ProductService {
     public ExecutionResult deleteProduct(String productId) {
         ProductEntity productEntity = productRepository.findById(UUID.fromString(productId)).orElse(null);
 
-        if(productEntity == null) {
-             return new ExecutionResult(FailureType.NOT_FOUND, "Product not found!");
+        if (productEntity == null) {
+            return new ExecutionResult(FailureType.NOT_FOUND, "Product not found!");
         }
 
         productEntity.setDeleted(true);
@@ -87,7 +87,7 @@ public class ProductServiceImpl implements ProductService {
     public TypedResult<ProductDto> updateProduct(String productId, ProductDto productDto) {
         ProductEntity productEntity = productRepository.findById(UUID.fromString(productId)).orElse(null);
 
-        if(productEntity == null) {
+        if (productEntity == null) {
             return new TypedResult<>(FailureType.NOT_FOUND, "Product not found!");
         }
 
