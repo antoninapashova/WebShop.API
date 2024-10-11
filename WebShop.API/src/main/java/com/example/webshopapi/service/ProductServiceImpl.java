@@ -29,11 +29,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDto addProduct(CreateProductRequest createProductRequest) throws Exception {
+    public TypedResult<ProductDto> addProduct(CreateProductRequest createProductRequest) throws Exception {
         boolean isExists = isProductExist(createProductRequest.name);
 
         if (isExists) {
-            throw new Exception(String.format("Product with name %s already exists", createProductRequest.name));
+            return new TypedResult<>(FailureType.UNKNOWN, String.format("Product with name %s already exists", createProductRequest.name));
         }
 
         CategoryEntity category = categoryRepository.findById(UUID.fromString(createProductRequest.getCategoryId())).orElse(null);
@@ -41,8 +41,9 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity product = modelMapper.map(createProductRequest, ProductEntity.class);
         product.setCategory(category);
         productRepository.save(product);
+        ProductDto dto = modelMapper.map(product, ProductDto.class);
 
-        return modelMapper.map(product, ProductDto.class);
+        return new TypedResult<>(dto);
     }
 
     @Override

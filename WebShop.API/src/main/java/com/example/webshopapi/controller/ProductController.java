@@ -1,6 +1,7 @@
 package com.example.webshopapi.controller;
 
 import com.example.webshopapi.config.result.FailureType;
+import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.ProductDto;
 import com.example.webshopapi.dto.requestObjects.CreateProductRequest;
 import com.example.webshopapi.service.ProductService;
@@ -17,9 +18,14 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping("add-product")
-    public ResponseEntity<ProductDto> addProduct(@RequestBody CreateProductRequest createProductRequest) throws Exception {
-        ProductDto newProduct = productService.addProduct(createProductRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
+    public ResponseEntity<?> addProduct(@RequestBody CreateProductRequest createProductRequest) throws Exception {
+        TypedResult<ProductDto> result = productService.addProduct(createProductRequest);
+
+        if(result.getFailureType() == FailureType.UNKNOWN){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessage());
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(result.getData());
     }
 
     @GetMapping("all-products")
