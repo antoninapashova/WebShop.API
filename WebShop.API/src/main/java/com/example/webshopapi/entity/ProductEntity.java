@@ -21,6 +21,7 @@ public class ProductEntity extends BaseEntity {
     private int quantity;
     private double price;
     private boolean isDeleted;
+    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name="category_id", nullable = false)
