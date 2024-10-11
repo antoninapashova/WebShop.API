@@ -56,8 +56,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public ExecutionResult deleteCategory(String categoryId) {
-      boolean isExists =  categoryRepository.existsById(UUID.fromString(categoryId));
-        if(!isExists){
+        boolean isExists = categoryRepository.existsById(UUID.fromString(categoryId));
+        if (!isExists) {
             return new ExecutionResult(FailureType.NOT_FOUND, "Category not found!");
         }
 
