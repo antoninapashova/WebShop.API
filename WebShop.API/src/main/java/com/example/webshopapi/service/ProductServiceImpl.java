@@ -100,6 +100,11 @@ public class ProductServiceImpl implements ProductService {
         return new TypedResult<>(asDto(productEntity));
     }
 
+    @Override
+    public List<ProductDto> fetchAllByName(String name) {
+       return productRepository.findAllByName(name).stream().map(this::asDto).toList();
+    }
+
     private ProductDto asDto(ProductEntity productEntity) {
         ProductDto productDto = modelMapper.map(productEntity, ProductDto.class);
         productDto.setId(productEntity.getId().toString());

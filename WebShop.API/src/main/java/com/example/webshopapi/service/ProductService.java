@@ -13,4 +13,5 @@ public interface ProductService {
     void initProducts();
     ExecutionResult deleteProduct(String productId);
     TypedResult<ProductDto> updateProduct(String productId, ProductDto productDto);
+    List<ProductDto> fetchAllByName(String name);
 }
