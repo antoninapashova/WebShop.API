@@ -48,7 +48,7 @@ public class WebSecurityConfiguration {
                         .requestMatchers("/add-product", "/all-orders",
                                 "/set-order-status", "/delete-product/{productId}",
                                 "/update-product/{productId}",
-                                "/all-categories", "/add-category/{categoryName}").hasRole("ADMIN")
+                                "/all-categories", "/add-category/{categoryName}", "search/{name}").hasRole("ADMIN")
                         .requestMatchers("/add-to-cart", "/get-cart",
                                 "/cart/changeItemQuantity", "/cart/setItemQuantity", "/order").hasRole("CUSTOMER")
                         .anyRequest().authenticated())

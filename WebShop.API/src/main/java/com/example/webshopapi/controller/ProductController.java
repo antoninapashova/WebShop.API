@@ -21,7 +21,7 @@ public class ProductController {
     public ResponseEntity<?> addProduct(@RequestBody CreateProductRequest createProductRequest) throws Exception {
         TypedResult<ProductDto> result = productService.addProduct(createProductRequest);
 
-        if(result.getFailureType() == FailureType.UNKNOWN){
+        if (result.getFailureType() == FailureType.UNKNOWN) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessage());
         }
 
@@ -34,10 +34,16 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(allProducts);
     }
 
+    @GetMapping("search/{name}")
+    public ResponseEntity<?> getAllProductsByName(@PathVariable String name) {
+        List<ProductDto> productsByName = productService.fetchAllByName(name);
+        return ResponseEntity.status(HttpStatus.OK).body(productsByName);
+    }
+
     @DeleteMapping("delete-product/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable String productId) {
         if (productId == null) {
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
         var result = productService.deleteProduct(productId);
