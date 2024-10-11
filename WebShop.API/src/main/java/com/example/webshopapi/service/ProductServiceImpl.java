@@ -101,7 +101,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private ProductDto asDto(ProductEntity productEntity) {
-        return modelMapper.map(productEntity, ProductDto.class);
+        ProductDto productDto = modelMapper.map(productEntity, ProductDto.class);
+        productDto.setId(productEntity.getId().toString());
+        productDto.setCategoryName(productEntity.getCategory().getName());
+        return productDto;
     }
 
     private boolean isProductExist(String name) {
