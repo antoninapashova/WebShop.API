@@ -1,5 +1,8 @@
 package com.example.webshopapi.service;
 
+import com.example.webshopapi.config.result.ExecutionResult;
+import com.example.webshopapi.config.result.FailureType;
+import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CartDto;
 import com.example.webshopapi.dto.requestObjects.ChangeCartItemQuantityRequest;
 import com.example.webshopapi.entity.CartEntity;
@@ -27,11 +30,11 @@ public class CartServiceImpl implements CartService {
     private final ModelMapper modelMapper;
 
     @Override
-    public void addProductToCart(UUID productId, UUID userId) throws Exception {
+    public ExecutionResult addProductToCart(UUID productId, UUID userId) throws Exception {
         CartEntity cart = ensureUserHasCart(userId);
-        if (cart == null) throw new Exception("Cart not found");
+        if (cart == null) return new ExecutionResult(FailureType.NOT_FOUND, "No cart found");
 
-        assignItemToCartAsync(cart, productId);
+        return assignItemToCartAsync(cart, productId);
     }
 
     @Override
@@ -45,11 +48,12 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void setCartItemQuantity(String cartItemId, int quantity) {
-        var item = findItemById(cartItemId);
+        TypedResult<CartItemEntity> result = findItemById(cartItemId);
+        CartItemEntity item = result.getData();
 
-        if(quantity<=0){
+        if (quantity <= 0) {
             cartItemRepository.delete(item);
-        }else {
+        } else {
             item.setQuantity(quantity);
             cartItemRepository.save(item);
         }
@@ -57,34 +61,40 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void changeItemQuantity(ChangeCartItemQuantityRequest changeCartItemQuantity) {
-       var item = findItemById(changeCartItemQuantity.cartItemId);
+        TypedResult<CartItemEntity> result = findItemById(changeCartItemQuantity.cartItemId);
+        CartItemEntity item = result.getData();
 
-        if(changeCartItemQuantity.isIncreaseChange){
+        if (changeCartItemQuantity.isIncreaseChange) {
             item.setQuantity(item.getQuantity() + 1);
-        }else {
+        } else {
             item.setQuantity(item.getQuantity() - 1);
         }
 
-        if(item.getQuantity() == 0) {
+        if (item.getQuantity() == 0) {
             cartItemRepository.delete(item);
-        }else{
+        } else {
             cartItemRepository.save(item);
         }
     }
 
-    private void assignItemToCartAsync(CartEntity cart, UUID productId) {
+    private ExecutionResult assignItemToCartAsync(CartEntity cart, UUID productId) {
         ProductEntity productEntity = productRepository.findProductEntityById(productId);
-        if (productEntity == null) throw new NullPointerException("Product does not exist!");
+        if (productEntity == null) return new ExecutionResult(FailureType.NOT_FOUND,"Product does not exist!");
 
         CartItemEntity cartItem = cart.getItems().stream().filter(x -> x.getProduct().getId() == productEntity.getId()).findAny().orElse(null);
+        ExecutionResult result;
 
         if (cartItem == null) {
             cartItem = new CartItemEntity(productEntity.getName(), 1, productEntity.getPrice(), cart, productEntity);
             cartItemRepository.save(cartItem);
+            result = new ExecutionResult("Product added successfully");
         } else {
             cartItem.setQuantity(cartItem.getQuantity() + 1);
             cartItemRepository.save(cartItem);
+            result = new ExecutionResult("Product quantity increased successfully");
         }
+
+        return result;
     }
 
     private CartEntity ensureUserHasCart(UUID userId) {
@@ -103,9 +113,12 @@ public class CartServiceImpl implements CartService {
         return cartRepository.findByUserId(userId);
     }
 
-    private CartItemEntity findItemById(String itemId) {
+    private TypedResult<CartItemEntity> findItemById(String itemId) {
         var item = cartItemRepository.findById(UUID.fromString(itemId)).orElse(null);
-        if (item == null) throw new NullPointerException("Item not found for id " + itemId);
-        return item;
+        if (item == null) {
+            return new TypedResult<>(FailureType.NOT_FOUND, String.format("Item not found for id " + itemId));
+        }
+
+        return new TypedResult<>(item);
     }
 }
