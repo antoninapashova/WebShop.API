@@ -1,5 +1,6 @@
 package com.example.webshopapi.entity;
 
+import com.example.webshopapi.entity.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

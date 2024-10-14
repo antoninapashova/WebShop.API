@@ -5,7 +5,7 @@ import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.requestObjects.SignupRequest;
 import com.example.webshopapi.dto.UserDto;
 import com.example.webshopapi.entity.UserEntity;
-import com.example.webshopapi.entity.UserRole;
+import com.example.webshopapi.entity.enums.UserRole;
 import com.example.webshopapi.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
