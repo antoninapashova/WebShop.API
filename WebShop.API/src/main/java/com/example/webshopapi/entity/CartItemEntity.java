@@ -26,5 +26,6 @@ public class CartItemEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "product_id")
+    @OnDelete(action= OnDeleteAction.CASCADE)
     private ProductEntity product;
 }
