@@ -10,5 +10,5 @@ public interface CartService {
     ExecutionResult addProductToCart(UUID productId, UUID userId) throws Exception;
     CartDto getCartByUserId(UUID userId);
     void setCartItemQuantity(String cartItemId, int quantity);
-    void changeItemQuantity(ChangeCartItemQuantityRequest increaseQuantity);
+    ExecutionResult changeItemQuantity(ChangeCartItemQuantityRequest increaseQuantity);
 }

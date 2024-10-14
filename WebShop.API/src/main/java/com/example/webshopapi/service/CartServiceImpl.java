@@ -60,21 +60,32 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void changeItemQuantity(ChangeCartItemQuantityRequest changeCartItemQuantity) {
-        TypedResult<CartItemEntity> result = findItemById(changeCartItemQuantity.cartItemId);
-        CartItemEntity item = result.getData();
+    public ExecutionResult changeItemQuantity(ChangeCartItemQuantityRequest changeCartItemQuantity) {
+        TypedResult<CartItemEntity> itemResult = findItemById(changeCartItemQuantity.cartItemId);
+
+        if(!itemResult.isSuccess()){
+           return new ExecutionResult(itemResult.getFailureType(), itemResult.getMessage());
+        }
+
+        CartItemEntity item = itemResult.getData();
+        ExecutionResult result;
 
         if (changeCartItemQuantity.isIncreaseChange) {
             item.setQuantity(item.getQuantity() + 1);
+            result = new ExecutionResult("Quantity increased successfully!");
         } else {
             item.setQuantity(item.getQuantity() - 1);
+            result = new ExecutionResult("Quantity decreased successfully!");
         }
 
         if (item.getQuantity() == 0) {
             cartItemRepository.delete(item);
+            result = new ExecutionResult("Item is removed from cart successfully!");
         } else {
             cartItemRepository.save(item);
         }
+
+        return result;
     }
 
     private ExecutionResult assignItemToCartAsync(CartEntity cart, UUID productId) {

@@ -48,8 +48,13 @@ public class CartController {
     public ResponseEntity<?> changeItemQuantity(@RequestBody ChangeCartItemQuantityRequest changeQuantity) {
         if (changeQuantity == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-        cartService.changeItemQuantity(changeQuantity);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        ExecutionResult result = cartService.changeItemQuantity(changeQuantity);
+
+        if(result.getFailureType() == FailureType.NOT_FOUND) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @PutMapping("/cart/setItemQuantity")
