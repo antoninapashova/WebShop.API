@@ -1,5 +1,6 @@
 package com.example.webshopapi.entity;
 
+import com.example.webshopapi.entity.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +20,12 @@ public class OrderEntity extends BaseEntity {
     private LocalDateTime orderDate;
     private LocalDateTime deliveryDate;
     private Boolean isApproved;
+    private String orderDescription;
+    private String address;
+    private String payment;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
