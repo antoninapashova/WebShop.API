@@ -29,7 +29,7 @@ public class WebSecurityConfiguration {
     private JwtRequestFilter jwtFilter;
 
     @Autowired
-    CustomCorsConfiguration customCorsConfiguration;
+    private CustomCorsConfiguration customCorsConfiguration;
 
     @Bean
     public AuthenticationProvider authProvider() {
