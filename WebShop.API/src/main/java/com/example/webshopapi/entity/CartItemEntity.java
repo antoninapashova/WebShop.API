@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -19,6 +21,7 @@ public class CartItemEntity extends BaseEntity {
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(nullable = false)
+    @OnDelete(action= OnDeleteAction.CASCADE)
     private CartEntity cart;
 
     @ManyToOne
