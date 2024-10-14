@@ -45,7 +45,7 @@ public class CartController {
     }
 
     @PutMapping("/cart/changeItemQuantity")
-    public ResponseEntity<?> increaseCartItemQuantity(@RequestBody ChangeCartItemQuantityRequest changeQuantity) {
+    public ResponseEntity<?> changeItemQuantity(@RequestBody ChangeCartItemQuantityRequest changeQuantity) {
         if (changeQuantity == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         cartService.changeItemQuantity(changeQuantity);
