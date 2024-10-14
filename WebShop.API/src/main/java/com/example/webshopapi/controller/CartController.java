@@ -30,7 +30,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result.getMessage());
         }
 
-        return new ResponseEntity<>(result.getMessage(), HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/get-cart")
