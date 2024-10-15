@@ -16,4 +16,7 @@ public class OrderDto {
     public Boolean isApproved;
     public List<OrderItemDto> orderItems;
     public double totalAmount;
+    public String description;
+    public String address;
+    public String status;
 }
