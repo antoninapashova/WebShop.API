@@ -38,12 +38,17 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartDto getCartByUserId(UUID userId) {
+    public TypedResult<CartDto> getCartByUserId(UUID userId) {
         CartEntity cart = cartRepository.findByUserId(userId);
+
+        if (cart == null) {
+            return new TypedResult<>(FailureType.NOT_FOUND, "User has no assigned cart!");
+        }
+
         var cartEntityDto = modelMapper.map(cart, CartDto.class);
         cartEntityDto.setTotalPrice(cart.getItems().stream().mapToDouble(i -> i.getPrice() * i.getQuantity()).sum());
 
-        return cartEntityDto;
+        return new TypedResult<>(cartEntityDto);
     }
 
     @Override

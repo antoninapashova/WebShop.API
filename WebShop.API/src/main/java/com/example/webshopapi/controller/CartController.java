@@ -2,6 +2,7 @@ package com.example.webshopapi.controller;
 
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.FailureType;
+import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CartDto;
 import com.example.webshopapi.dto.requestObjects.ChangeCartItemQuantityRequest;
 import com.example.webshopapi.dto.requestObjects.SetCartItemQuantityRequest;
@@ -34,14 +35,9 @@ public class CartController {
     }
 
     @GetMapping("/get-cart")
-    public ResponseEntity<CartDto> getCart(@AuthenticationPrincipal UserPrinciple user) {
-        CartDto cart = cartService.getCartByUserId(user.getUserId());
-
-        if (cart == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(cart);
+    public ResponseEntity<?> getCart(@AuthenticationPrincipal UserPrinciple user) {
+        TypedResult<CartDto> result = cartService.getCartByUserId(user.getUserId());
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @PutMapping("/cart/changeItemQuantity")
