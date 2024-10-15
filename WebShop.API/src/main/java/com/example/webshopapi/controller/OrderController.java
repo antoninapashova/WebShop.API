@@ -1,6 +1,9 @@
 package com.example.webshopapi.controller;
 
+import com.example.webshopapi.config.result.ExecutionResult;
+import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.dto.OrderDto;
+import com.example.webshopapi.dto.requestObjects.CreateOrderDto;
 import com.example.webshopapi.dto.requestObjects.SetOrderStatusRequest;
 import com.example.webshopapi.entity.UserPrinciple;
 import com.example.webshopapi.service.OrderService;
@@ -20,10 +23,16 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping("/order")
-    public ResponseEntity<?> createOrder(@AuthenticationPrincipal UserPrinciple principle) {
-        orderService.createOrder(principle.getUserId());
-        return ResponseEntity.ok().build();
+    @PostMapping("/create-order")
+    public ResponseEntity<?> createOrder(@AuthenticationPrincipal UserPrinciple principle, @RequestBody CreateOrderDto order) {
+        order.setUserId(principle.getUserId());
+        ExecutionResult result = orderService.createOrder(order);
+
+        if (result.getFailureType() == FailureType.NOT_FOUND) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @GetMapping("/all-orders")

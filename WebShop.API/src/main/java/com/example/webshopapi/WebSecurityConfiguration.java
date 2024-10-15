@@ -51,7 +51,7 @@ public class WebSecurityConfiguration {
                                 "/update-product/{productId}",
                                 "/all-categories", "/add-category/{categoryName}", "search/{name}").hasRole("ADMIN")
                         .requestMatchers("/add-to-cart", "/get-cart",
-                                "/cart/changeItemQuantity", "/cart/setItemQuantity", "/order").hasRole("CUSTOMER")
+                                "/cart/changeItemQuantity", "/cart/setItemQuantity", "/create-order").hasRole("CUSTOMER")
                         .anyRequest().authenticated())
                 .cors(c -> c.configurationSource(customCorsConfiguration))
                 .httpBasic(Customizer.withDefaults())

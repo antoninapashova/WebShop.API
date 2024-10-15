@@ -1,10 +1,14 @@
 package com.example.webshopapi.service;
 
 import com.example.webshopapi.config.DateTimeExtension;
+import com.example.webshopapi.config.result.ExecutionResult;
+import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.dto.OrderDto;
+import com.example.webshopapi.dto.requestObjects.CreateOrderDto;
 import com.example.webshopapi.entity.OrderEntity;
 import com.example.webshopapi.entity.OrderItem;
 import com.example.webshopapi.entity.ProductEntity;
+import com.example.webshopapi.entity.enums.OrderStatus;
 import com.example.webshopapi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -30,15 +34,22 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public void createOrder(UUID userId) {
-        var cart = cartRepository.getCartEntityByUserId(userId);
-        if (cart == null) throw new NullPointerException("Cart not found");
+    public ExecutionResult createOrder(CreateOrderDto dto) {
+        var cart = cartRepository.getCartEntityByUserId(dto.getUserId());
+        if (cart == null) return new ExecutionResult(FailureType.NOT_FOUND,"Cart not found");
 
-        var user = userRepository.findById(userId).orElse(null);
+        var user = userRepository.findById(dto.getUserId());
+        if(user.isEmpty()){
+            return new ExecutionResult(FailureType.NOT_FOUND,"User not found");
+        }
+
         var order = new OrderEntity();
-        order.setUser(user);
+        order.setUser(user.get());
         order.setOrderDate(LocalDateTime.now());
         order.setDeliveryDate(DateTimeExtension.AddBusinessDays(LocalDateTime.now(), 3));
+        order.setAddress(dto.getAddress());
+        order.setOrderStatus(OrderStatus.Pending);
+        order.setOrderDescription(dto.getDescription());
         orderRepository.save(order);
 
         cart.getItems().forEach(cartItem -> {
@@ -49,6 +60,7 @@ public class OrderServiceImpl implements OrderService {
         });
 
         cartRepository.delete(cart);
+        return new ExecutionResult("Order send successfully");
     }
 
     @Override
