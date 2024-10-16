@@ -41,8 +41,8 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(orderDtoList);
     }
 
-    @PutMapping("/set-order-status")
-    public ResponseEntity<?> setOrderStatus(@RequestBody SetOrderStatusRequest request) {
+    @PutMapping("/set-order-approved")
+    public ResponseEntity<?> setOrderApproved(@RequestBody SetOrderStatusRequest request) {
         if (request == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         try {
