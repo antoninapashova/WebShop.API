@@ -14,4 +14,5 @@ public interface ProductService {
     ExecutionResult deleteProduct(String productId);
     TypedResult<ProductDto> updateProduct(String productId, ProductDto productDto);
     List<ProductDto> fetchAllByName(String name);
+    TypedResult<ProductDto> getProductById(String productId);
 }

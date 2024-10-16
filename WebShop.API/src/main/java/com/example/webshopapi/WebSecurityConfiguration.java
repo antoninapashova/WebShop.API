@@ -50,9 +50,12 @@ public class WebSecurityConfiguration {
                                 "/set-order-approved", "/delete-product/{productId}",
                                 "/update-product/{productId}", "/all-categories",
                                 "/add-category/{categoryName}", "search/{name}",
-                                "/set-order-status/{orderId}/{status}", "/get-order-items/{orderId}").hasRole("ADMIN")
+                                "/set-order-status/{orderId}/{status}", "/get-order-items/{orderId}",
+                                "/get-product/{productId}")
+                        .hasRole("ADMIN")
                         .requestMatchers("/add-to-cart", "/get-cart",
-                                "/cart/changeItemQuantity", "/cart/setItemQuantity", "/create-order").hasRole("CUSTOMER")
+                                "/cart/changeItemQuantity", "/cart/setItemQuantity", "/create-order")
+                        .hasRole("CUSTOMER")
                         .anyRequest().authenticated())
                 .cors(c -> c.configurationSource(customCorsConfiguration))
                 .httpBasic(Customizer.withDefaults())

@@ -105,6 +105,17 @@ public class ProductServiceImpl implements ProductService {
        return productRepository.findAllByName(name).stream().map(this::asDto).toList();
     }
 
+    @Override
+    public TypedResult<ProductDto> getProductById(String productId) {
+        ProductEntity product = productRepository.findProductEntityById(UUID.fromString(productId));
+
+        if(product == null){
+            return new TypedResult<>(FailureType.NOT_FOUND, "Product not found!");
+        }
+
+        return new TypedResult<>(asDto(product));
+    }
+
     private ProductDto asDto(ProductEntity productEntity) {
         ProductDto productDto = modelMapper.map(productEntity, ProductDto.class);
         productDto.setId(productEntity.getId().toString());

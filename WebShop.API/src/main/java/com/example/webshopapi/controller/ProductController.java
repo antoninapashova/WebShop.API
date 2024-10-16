@@ -67,6 +67,21 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(result.getData());
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/get-product/{productId}")
+    public ResponseEntity<?> getProductById(@PathVariable String productId) {
+        if (productId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        TypedResult<ProductDto> result = productService.getProductById(productId);
+
+        if (result.getFailureType() == FailureType.NOT_FOUND) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }
