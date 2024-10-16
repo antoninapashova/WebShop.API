@@ -47,9 +47,10 @@ public class WebSecurityConfiguration {
                         .permitAll()
                         .requestMatchers("/all-products").hasAnyRole("ADMIN", "CUSTOMER")
                         .requestMatchers("/add-product", "/all-orders",
-                                "/set-order-status", "/delete-product/{productId}",
-                                "/update-product/{productId}",
-                                "/all-categories", "/add-category/{categoryName}", "search/{name}").hasRole("ADMIN")
+                                "/set-order-approved", "/delete-product/{productId}",
+                                "/update-product/{productId}", "/all-categories",
+                                "/add-category/{categoryName}", "search/{name}",
+                                "/set-order-status/{orderId}/{status}", "/get-order-items/{orderId}").hasRole("ADMIN")
                         .requestMatchers("/add-to-cart", "/get-cart",
                                 "/cart/changeItemQuantity", "/cart/setItemQuantity", "/create-order").hasRole("CUSTOMER")
                         .anyRequest().authenticated())
@@ -67,7 +68,7 @@ public class WebSecurityConfiguration {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

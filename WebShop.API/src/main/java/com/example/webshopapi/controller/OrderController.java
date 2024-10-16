@@ -2,7 +2,9 @@ package com.example.webshopapi.controller;
 
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.FailureType;
+import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.OrderDto;
+import com.example.webshopapi.dto.OrderItemDto;
 import com.example.webshopapi.dto.requestObjects.CreateOrderDto;
 import com.example.webshopapi.dto.requestObjects.SetOrderStatusRequest;
 import com.example.webshopapi.entity.UserPrinciple;
@@ -51,5 +53,25 @@ public class OrderController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
+    }
+
+    @PutMapping("/set-order-status/{orderId}/{status}")
+    public ResponseEntity<?> setOrderStatus(@PathVariable String orderId, @PathVariable String status) {
+        if (orderId == null || status == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        ExecutionResult result = orderService.changeOrderStatus(UUID.fromString(orderId), status);
+        if (result.getFailureType() == FailureType.NOT_FOUND) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/get-order-items/{orderId}")
+    public ResponseEntity<?> setOrderStatus(@PathVariable String orderId) {
+        if (orderId == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        TypedResult<List<OrderItemDto>> result = orderService.getOrderItems(UUID.fromString(orderId));
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

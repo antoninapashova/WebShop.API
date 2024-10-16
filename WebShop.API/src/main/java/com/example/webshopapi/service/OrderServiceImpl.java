@@ -3,7 +3,9 @@ package com.example.webshopapi.service;
 import com.example.webshopapi.config.DateTimeExtension;
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.FailureType;
+import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.OrderDto;
+import com.example.webshopapi.dto.OrderItemDto;
 import com.example.webshopapi.dto.requestObjects.CreateOrderDto;
 import com.example.webshopapi.entity.OrderEntity;
 import com.example.webshopapi.entity.OrderItem;
@@ -18,6 +20,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -36,11 +40,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ExecutionResult createOrder(CreateOrderDto dto) {
         var cart = cartRepository.getCartEntityByUserId(dto.getUserId());
-        if (cart == null) return new ExecutionResult(FailureType.NOT_FOUND,"Cart not found");
+        if (cart == null) return new ExecutionResult(FailureType.NOT_FOUND, "Cart not found");
 
         var user = userRepository.findById(dto.getUserId());
-        if(user.isEmpty()){
-            return new ExecutionResult(FailureType.NOT_FOUND,"User not found");
+        if (user.isEmpty()) {
+            return new ExecutionResult(FailureType.NOT_FOUND, "User not found");
         }
 
         var order = new OrderEntity();
@@ -83,27 +87,56 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void setOrderStatus(UUID orderId, boolean isApproved) {
         OrderEntity order = orderRepository.findById(orderId).orElse(null);
-        if(order == null) throw new NullPointerException("Order not found");
+        if (order == null) throw new NullPointerException("Order not found");
 
-        if(isApproved){
+        if (isApproved) {
             completeOrder(order);
         }
 
-        if (order.getOrderItems().isEmpty())
-        {
+        if (order.getOrderItems().isEmpty()) {
             order.setIsApproved(false);
-        }else {
+        } else {
             order.setIsApproved(isApproved);
         }
 
         orderRepository.save(order);
     }
 
-    private void completeOrder(OrderEntity order)
-    {
+    @Override
+    public ExecutionResult changeOrderStatus(UUID orderId, String status) {
+        Optional<OrderEntity> optionalOrder = orderRepository.findById(orderId);
+
+        if (optionalOrder.isEmpty()) {
+            return new TypedResult<>(FailureType.NOT_FOUND, "Order not found!");
+        }
+
+        OrderEntity order = optionalOrder.get();
+        if (Objects.equals(status, "Shipped")) {
+            order.setOrderStatus(OrderStatus.Shipped);
+        } else if (Objects.equals(status, "Delivered")) {
+            order.setOrderStatus(OrderStatus.Delivered);
+        }
+
+        orderRepository.save(order);
+        return new ExecutionResult("Status changed successfully!");
+    }
+
+    @Override
+    public TypedResult<List<OrderItemDto>> getOrderItems(UUID orderId) {
+        List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(orderId);
+        if(orderItems.isEmpty()){
+            return new TypedResult<>(FailureType.NOT_FOUND, "No order items found for this order");
+        }
+
+        List<OrderItemDto> dtos = orderItems.stream().map(this::asOrderItemDto).toList();
+
+        return new TypedResult<>(dtos);
+    }
+
+    private void completeOrder(OrderEntity order) {
         order.getOrderItems().forEach(orderItem -> {
             ProductEntity product = productRepository.findById(orderItem.getProductId()).orElse(null);
-            boolean isProductUnavailable = product == null || product.isDeleted() || product.getQuantity()==0;
+            boolean isProductUnavailable = product == null || product.isDeleted() || product.getQuantity() == 0;
 
             updateOrderItems(orderItem, product, isProductUnavailable);
 
@@ -113,29 +146,24 @@ public class OrderServiceImpl implements OrderService {
         });
     }
 
-    private void updateOrderItems(OrderItem orderItem, ProductEntity product, boolean isProductUnavailable)
-    {
-        if (isProductUnavailable)
-        {
+    private void updateOrderItems(OrderItem orderItem, ProductEntity product, boolean isProductUnavailable) {
+        if (isProductUnavailable) {
             orderItemRepository.deleteOrderItemById(orderItem.getId());
             return;
         }
 
         boolean isProductQuantityInsufficient = orderItem.getQuantity() > product.getQuantity();
-        if (isProductQuantityInsufficient)
-        {
+        if (isProductQuantityInsufficient) {
             UpdateOrderItemQuantity(orderItem, product);
         }
     }
 
-    private void UpdateOrderItemQuantity(OrderItem orderItem, ProductEntity product)
-    {
+    private void UpdateOrderItemQuantity(OrderItem orderItem, ProductEntity product) {
         orderItem.setQuantity(product.getQuantity());
         orderItemRepository.save(orderItem);
     }
 
-    private void decreaseProductsQuantity(OrderItem orderItem, ProductEntity product)
-    {
+    private void decreaseProductsQuantity(OrderItem orderItem, ProductEntity product) {
         int quanity = product.getQuantity();
         quanity -= orderItem.getQuantity();
         product.setQuantity(quanity);
@@ -144,5 +172,9 @@ public class OrderServiceImpl implements OrderService {
 
     private OrderDto asDto(OrderEntity orderEntity) {
         return modelMapper.map(orderEntity, OrderDto.class);
+    }
+
+    private OrderItemDto asOrderItemDto(OrderItem orderItem) {
+        return modelMapper.map(orderItem, OrderItemDto.class);
     }
 }

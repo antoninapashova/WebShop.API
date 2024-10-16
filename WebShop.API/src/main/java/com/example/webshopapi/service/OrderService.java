@@ -1,7 +1,9 @@
 package com.example.webshopapi.service;
 
 import com.example.webshopapi.config.result.ExecutionResult;
+import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.OrderDto;
+import com.example.webshopapi.dto.OrderItemDto;
 import com.example.webshopapi.dto.requestObjects.CreateOrderDto;
 
 import java.util.List;
@@ -11,4 +13,6 @@ public interface OrderService {
     ExecutionResult createOrder(CreateOrderDto orderDto);
     List<OrderDto> retrieveAllOrders();
     void setOrderStatus(UUID orderId, boolean isApproved);
+    ExecutionResult changeOrderStatus(UUID orderId, String status);
+    TypedResult<List<OrderItemDto>> getOrderItems(UUID orderId);
 }
