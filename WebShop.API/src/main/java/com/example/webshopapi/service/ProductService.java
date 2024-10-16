@@ -12,7 +12,7 @@ public interface ProductService {
     List<ProductDto> retrieveAllProducts();
     void initProducts();
     ExecutionResult deleteProduct(String productId);
-    TypedResult<ProductDto> updateProduct(String productId, ProductDto productDto);
+    ExecutionResult updateProduct(String productId, ProductDto productDto);
     List<ProductDto> fetchAllByName(String name);
     TypedResult<ProductDto> getProductById(String productId);
 }

@@ -84,11 +84,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public TypedResult<ProductDto> updateProduct(String productId, ProductDto productDto) {
+    public ExecutionResult updateProduct(String productId, ProductDto productDto) {
         ProductEntity productEntity = productRepository.findById(UUID.fromString(productId)).orElse(null);
 
         if (productEntity == null) {
-            return new TypedResult<>(FailureType.NOT_FOUND, "Product not found!");
+            return new ExecutionResult(FailureType.NOT_FOUND, "Product not found!");
         }
 
         productEntity.setName(productDto.getName());
@@ -97,12 +97,12 @@ public class ProductServiceImpl implements ProductService {
 
         productRepository.save(productEntity);
 
-        return new TypedResult<>(asDto(productEntity));
+        return new ExecutionResult("Product updated successfully!");
     }
 
     @Override
     public List<ProductDto> fetchAllByName(String name) {
-       return productRepository.findAllByName(name).stream().map(this::asDto).toList();
+        return productRepository.findAllByName(name).stream().map(this::asDto).toList();
     }
 
     @Override

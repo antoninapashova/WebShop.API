@@ -1,5 +1,6 @@
 package com.example.webshopapi.controller;
 
+import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.ProductDto;
@@ -61,7 +62,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        var result = productService.updateProduct(productId, productDto);
+        ExecutionResult result = productService.updateProduct(productId, productDto);
 
         if (result.getFailureType() == FailureType.NOT_FOUND) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
