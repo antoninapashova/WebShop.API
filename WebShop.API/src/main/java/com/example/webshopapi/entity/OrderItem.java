@@ -19,7 +19,7 @@ public class OrderItem extends BaseEntity{
     private double price;
     private UUID productId;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "order_id")
     private OrderEntity order;
 }
