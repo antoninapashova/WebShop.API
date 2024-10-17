@@ -66,6 +66,9 @@ public class ProductServiceImpl implements ProductService {
         productEntity.setPrice(10.5);
         productEntity.setItems(new ArrayList<>());
         productEntity.setCategory(category);
+        productEntity.setDescription("A product description is a form of marketing copy used to describe and " +
+                "explain the benefits of your product. In other words, it provides all the information and" +
+                " details of your product on your ecommerce site.");
         productRepository.save(productEntity);
     }
 
