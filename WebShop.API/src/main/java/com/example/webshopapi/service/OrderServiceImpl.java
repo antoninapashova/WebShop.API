@@ -40,11 +40,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ExecutionResult createOrder(CreateOrderDto dto) {
         var cart = cartRepository.getCartEntityByUserId(dto.getUserId());
-        if (cart == null) return new ExecutionResult(FailureType.NOT_FOUND, "Cart not found");
+        if (cart == null) return new ExecutionResult(FailureType.NOT_FOUND, "Cart not found!");
 
         var user = userRepository.findById(dto.getUserId());
         if (user.isEmpty()) {
-            return new ExecutionResult(FailureType.NOT_FOUND, "User not found");
+            return new ExecutionResult(FailureType.NOT_FOUND, "User not found!");
         }
 
         var order = new OrderEntity();
@@ -71,23 +71,30 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderDto> retrieveAllOrders() {
         return orderRepository.findAll().stream()
                 .map(order -> {
-                    var mappedOrder = asDto(order);
-                    mappedOrder.setOrderDate(order.getOrderDate().format(CUSTOM_FORMATTER));
-                    mappedOrder.setDeliveryDate(order.getDeliveryDate().format(CUSTOM_FORMATTER));
+                    OrderDto orderDto = asDto(order);
+                    orderDto.setOrderDate(order.getOrderDate().format(CUSTOM_FORMATTER));
+                    orderDto.setDeliveryDate(order.getDeliveryDate().format(CUSTOM_FORMATTER));
+                    if (order.getIsApproved() != null) {
+                        if (order.getIsApproved()) {
+                            orderDto.setIsApproved("Approved");
+                        } else {
+                            orderDto.setIsApproved("Rejected");
+                        }
+                    }
                     var user = order.getUser();
-                    mappedOrder.setClientName(user.getFirstName() + " " + user.getLastName());
+                    orderDto.setClientName(user.getFirstName() + " " + user.getLastName());
                     double totalAmount = order.getOrderItems().stream()
                             .mapToDouble(item -> item.getQuantity() * item.getPrice()).sum();
 
-                    mappedOrder.setTotalAmount(totalAmount);
-                    return mappedOrder;
+                    orderDto.setTotalAmount(totalAmount);
+                    return orderDto;
                 }).toList();
     }
 
     @Override
-    public void setOrderStatus(UUID orderId, boolean isApproved) {
+    public ExecutionResult setOrderStatus(UUID orderId, boolean isApproved) {
         OrderEntity order = orderRepository.findById(orderId).orElse(null);
-        if (order == null) throw new NullPointerException("Order not found");
+        if (order == null) return new ExecutionResult(FailureType.NOT_FOUND, "Order not found");
 
         if (isApproved) {
             completeOrder(order);
@@ -99,7 +106,15 @@ public class OrderServiceImpl implements OrderService {
             order.setIsApproved(isApproved);
         }
 
-        orderRepository.save(order);
+        OrderEntity save = orderRepository.save(order);
+        String status;
+        if (save.getIsApproved()) {
+            status = "APPROVED";
+        } else {
+            status = "REJECTED";
+        }
+
+        return new ExecutionResult("Status is " + status + " successfully");
     }
 
     @Override
@@ -124,7 +139,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public TypedResult<List<OrderItemDto>> getOrderItems(UUID orderId) {
         List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(orderId);
-        if(orderItems.isEmpty()){
+        if (orderItems.isEmpty()) {
             return new TypedResult<>(FailureType.NOT_FOUND, "No order items found for this order");
         }
 
@@ -148,17 +163,17 @@ public class OrderServiceImpl implements OrderService {
 
     private void updateOrderItems(OrderItem orderItem, ProductEntity product, boolean isProductUnavailable) {
         if (isProductUnavailable) {
-            orderItemRepository.deleteOrderItemById(orderItem.getId());
+            orderItemRepository.delete(orderItem);
             return;
         }
 
         boolean isProductQuantityInsufficient = orderItem.getQuantity() > product.getQuantity();
         if (isProductQuantityInsufficient) {
-            UpdateOrderItemQuantity(orderItem, product);
+            updateOrderItemQuantity(orderItem, product);
         }
     }
 
-    private void UpdateOrderItemQuantity(OrderItem orderItem, ProductEntity product) {
+    private void updateOrderItemQuantity(OrderItem orderItem, ProductEntity product) {
         orderItem.setQuantity(product.getQuantity());
         orderItemRepository.save(orderItem);
     }

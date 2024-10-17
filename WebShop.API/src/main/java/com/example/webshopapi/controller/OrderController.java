@@ -47,12 +47,12 @@ public class OrderController {
     public ResponseEntity<?> setOrderApproved(@RequestBody SetOrderStatusRequest request) {
         if (request == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-        try {
-            orderService.setOrderStatus(UUID.fromString(request.orderId), request.isApproved);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        ExecutionResult result = orderService.setOrderStatus(UUID.fromString(request.orderId), request.isApproved);
+        if (result.getFailureType() == FailureType.NOT_FOUND) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+
         }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @PutMapping("/set-order-status/{orderId}/{status}")

@@ -12,7 +12,7 @@ public class OrderDto {
     public String orderDate;
     public String deliveryDate;
     public String clientName;
-    public Boolean isApproved;
+    public String isApproved;
     public double totalAmount;
     public String description;
     public String address;

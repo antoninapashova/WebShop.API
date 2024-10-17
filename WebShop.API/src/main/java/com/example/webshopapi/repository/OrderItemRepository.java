@@ -10,7 +10,6 @@ import java.util.UUID;
 
 @Repository
 public interface OrderItemRepository extends JpaRepository<OrderItem, UUID> {
-    void deleteOrderItemById(UUID id);
     @Query(value = "SELECT * FROM order_items WHERE order_id = ?1", nativeQuery = true)
     List<OrderItem> findAllByOrderId(UUID orderId);
 }
