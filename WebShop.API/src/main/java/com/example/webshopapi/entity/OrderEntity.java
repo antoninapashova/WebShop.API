@@ -31,6 +31,6 @@ public class OrderEntity extends BaseEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE, mappedBy = "order")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE, mappedBy = "order", orphanRemoval = true)
     private List<OrderItem> orderItems;
 }

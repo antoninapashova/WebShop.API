@@ -19,10 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -100,21 +97,12 @@ public class OrderServiceImpl implements OrderService {
             completeOrder(order);
         }
 
-        if (order.getOrderItems().isEmpty()) {
-            order.setIsApproved(false);
-        } else {
-            order.setIsApproved(isApproved);
-        }
+        boolean orderHasItems = !order.getOrderItems().isEmpty();
+        order.setIsApproved(orderHasItems);
 
-        OrderEntity save = orderRepository.save(order);
-        String status;
-        if (save.getIsApproved()) {
-            status = "APPROVED";
-        } else {
-            status = "REJECTED";
-        }
-
-        return new ExecutionResult("Status is " + status + " successfully");
+        orderRepository.save(order);
+        String status = orderHasItems ? "APPROVED" : "REJECTED";
+        return new ExecutionResult(status);
     }
 
     @Override
@@ -149,27 +137,31 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void completeOrder(OrderEntity order) {
-        order.getOrderItems().forEach(orderItem -> {
+        List<OrderItem> orderItems = new ArrayList<>(order.getOrderItems()); // Ensure you work with a fresh copy
+
+        orderItems.forEach(orderItem -> {
             ProductEntity product = productRepository.findById(orderItem.getProductId()).orElse(null);
             boolean isProductUnavailable = product == null || product.isDeleted() || product.getQuantity() == 0;
 
-            updateOrderItems(orderItem, product, isProductUnavailable);
+            updateOrderItems(order, orderItem, product, isProductUnavailable);
 
             if (!isProductUnavailable) {
                 decreaseProductsQuantity(orderItem, product);
             }
         });
+
     }
 
-    private void updateOrderItems(OrderItem orderItem, ProductEntity product, boolean isProductUnavailable) {
+    private void updateOrderItems(OrderEntity order,OrderItem orderItem, ProductEntity product, boolean isProductUnavailable) {
         if (isProductUnavailable) {
             orderItemRepository.delete(orderItem);
-            return;
-        }
+            order.getOrderItems().remove(orderItem);
 
-        boolean isProductQuantityInsufficient = orderItem.getQuantity() > product.getQuantity();
-        if (isProductQuantityInsufficient) {
-            updateOrderItemQuantity(orderItem, product);
+        } else {
+            boolean isProductQuantityInsufficient = orderItem.getQuantity() > product.getQuantity();
+            if (isProductQuantityInsufficient) {
+                updateOrderItemQuantity(orderItem, product);
+            }
         }
     }
 
