@@ -19,7 +19,7 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping("add-product")
-    public ResponseEntity<?> addProduct(@RequestBody CreateProductRequest createProductRequest) throws Exception {
+    public ResponseEntity<?> addProduct(@ModelAttribute CreateProductRequest createProductRequest) throws Exception {
         TypedResult<ProductDto> result = productService.addProduct(createProductRequest);
 
         if (result.getFailureType() == FailureType.UNKNOWN) {

@@ -1,6 +1,7 @@
 package com.example.webshopapi.dto.requestObjects;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class CreateProductRequest {
@@ -9,4 +10,5 @@ public class CreateProductRequest {
     public double price;
     public String description;
     public String categoryId;
+    private MultipartFile[] images;
 }

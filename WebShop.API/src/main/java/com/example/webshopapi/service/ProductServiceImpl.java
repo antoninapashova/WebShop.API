@@ -3,16 +3,20 @@ package com.example.webshopapi.service;
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
+import com.example.webshopapi.dto.ImageDto;
 import com.example.webshopapi.dto.ProductDto;
 import com.example.webshopapi.dto.requestObjects.CreateProductRequest;
 import com.example.webshopapi.entity.CategoryEntity;
+import com.example.webshopapi.entity.ImageEntity;
 import com.example.webshopapi.entity.ProductEntity;
 import com.example.webshopapi.repository.CategoryRepository;
 import com.example.webshopapi.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,6 +43,18 @@ public class ProductServiceImpl implements ProductService {
         CategoryEntity category = categoryRepository.findById(UUID.fromString(createProductRequest.getCategoryId())).orElse(null);
 
         ProductEntity product = modelMapper.map(createProductRequest, ProductEntity.class);
+
+        List<ImageEntity> images = Arrays.stream(createProductRequest.getImages()).map(img -> {
+            try {
+                ImageEntity image = new ImageEntity(img.getBytes());
+                image.setProduct(product);
+                return image;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
+
+        product.setImages(images);
         product.setCategory(category);
         productRepository.save(product);
         ProductDto dto = modelMapper.map(product, ProductDto.class);
@@ -112,7 +128,7 @@ public class ProductServiceImpl implements ProductService {
     public TypedResult<ProductDto> getProductById(String productId) {
         ProductEntity product = productRepository.findProductEntityById(UUID.fromString(productId));
 
-        if(product == null){
+        if (product == null) {
             return new TypedResult<>(FailureType.NOT_FOUND, "Product not found!");
         }
 
@@ -123,6 +139,9 @@ public class ProductServiceImpl implements ProductService {
         ProductDto productDto = modelMapper.map(productEntity, ProductDto.class);
         productDto.setId(productEntity.getId().toString());
         productDto.setCategoryName(productEntity.getCategory().getName());
+        List<ImageDto> imageDtos = productEntity.getImages().stream().map(imageEntity -> modelMapper.map(imageEntity, ImageDto.class)).toList();
+        productDto.setImages(imageDtos);
+
         return productDto;
     }
 
