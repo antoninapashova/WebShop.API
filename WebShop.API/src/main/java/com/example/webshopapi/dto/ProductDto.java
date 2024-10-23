@@ -2,6 +2,8 @@ package com.example.webshopapi.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ProductDto {
     public String id;
@@ -10,4 +12,5 @@ public class ProductDto {
     public double price;
     public String description;
     public String categoryName;
+    public List<ImageDto> images;
 }
