@@ -37,7 +37,12 @@ public class CartController {
     @GetMapping("/get-cart")
     public ResponseEntity<?> getCart(@AuthenticationPrincipal UserPrinciple user) {
         TypedResult<CartDto> result = cartService.getCartByUserId(user.getUserId());
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+
+        if(result.getFailureType() == FailureType.NOT_FOUND){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result.getMessage());
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result.getData());
     }
 
     @PutMapping("/cart/changeItemQuantity")
