@@ -6,6 +6,7 @@ import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.ImageDto;
 import com.example.webshopapi.dto.ProductDto;
 import com.example.webshopapi.dto.requestObjects.CreateProductRequest;
+import com.example.webshopapi.dto.requestObjects.UpdateProductRequest;
 import com.example.webshopapi.entity.CategoryEntity;
 import com.example.webshopapi.entity.ImageEntity;
 import com.example.webshopapi.entity.ProductEntity;
@@ -103,17 +104,28 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ExecutionResult updateProduct(String productId, ProductDto productDto) {
+    public ExecutionResult updateProduct(String productId, UpdateProductRequest product) {
         ProductEntity productEntity = productRepository.findById(UUID.fromString(productId)).orElse(null);
 
         if (productEntity == null) {
             return new ExecutionResult(FailureType.NOT_FOUND, "Product not found!");
         }
 
-        productEntity.setName(productDto.getName());
-        productEntity.setQuantity(productDto.getQuantity());
-        productEntity.setPrice(productDto.getPrice());
+        productEntity.setName(product.getName());
+        productEntity.setQuantity(product.getQuantity());
+        productEntity.setPrice(product.getPrice());
 
+        List<ImageEntity> images = Arrays.stream(product.getImages()).map(img -> {
+            try {
+                ImageEntity image = new ImageEntity(img.getBytes());
+                image.setProduct(productEntity);
+                return image;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
+
+        productEntity.setImages(images);
         productRepository.save(productEntity);
 
         return new ExecutionResult("Product updated successfully!");

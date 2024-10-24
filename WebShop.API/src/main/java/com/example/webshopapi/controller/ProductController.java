@@ -5,6 +5,7 @@ import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.ProductDto;
 import com.example.webshopapi.dto.requestObjects.CreateProductRequest;
+import com.example.webshopapi.dto.requestObjects.UpdateProductRequest;
 import com.example.webshopapi.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -57,12 +58,12 @@ public class ProductController {
     }
 
     @PutMapping("update-product/{productId}")
-    public ResponseEntity<?> updateProduct(@PathVariable String productId, @RequestBody ProductDto productDto) {
-        if (productId == null || productDto == null) {
+    public ResponseEntity<?> updateProduct(@PathVariable String productId, @RequestBody UpdateProductRequest product) {
+        if (productId == null || product == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        ExecutionResult result = productService.updateProduct(productId, productDto);
+        ExecutionResult result = productService.updateProduct(productId, product);
 
         if (result.getFailureType() == FailureType.NOT_FOUND) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
@@ -83,6 +84,6 @@ public class ProductController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        return ResponseEntity.status(HttpStatus.OK).body(result.getData());
     }
 }
