@@ -4,6 +4,8 @@ import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CartDto;
+import com.example.webshopapi.dto.CartItemDto;
+import com.example.webshopapi.dto.ImageDto;
 import com.example.webshopapi.dto.requestObjects.ChangeCartItemQuantityRequest;
 import com.example.webshopapi.entity.CartEntity;
 import com.example.webshopapi.entity.CartItemEntity;
@@ -46,8 +48,8 @@ public class CartServiceImpl implements CartService {
         }
 
         var cartEntityDto = modelMapper.map(cart, CartDto.class);
-        cartEntityDto.setTotalPrice(cart.getItems().stream().mapToDouble(i -> i.getPrice() * i.getQuantity()).sum());
-
+        cartEntityDto.setTotalPrice(cart.getItems().stream().mapToDouble(i -> i.getProduct().getPrice() * i.getQuantity()).sum());
+        cartEntityDto.setCartItems(cart.getItems().stream().map(this::asCartItemDto).toList());
         return new TypedResult<>(cartEntityDto);
     }
 
@@ -101,7 +103,7 @@ public class CartServiceImpl implements CartService {
         ExecutionResult result;
 
         if (cartItem == null) {
-            cartItem = new CartItemEntity(productEntity.getName(), 1, productEntity.getPrice(), cart, productEntity);
+            cartItem = new CartItemEntity(1, cart, productEntity);
             cartItemRepository.save(cartItem);
             result = new ExecutionResult("Product added successfully");
         } else {
@@ -136,5 +138,13 @@ public class CartServiceImpl implements CartService {
         }
 
         return new TypedResult<>(item);
+    }
+
+    private CartItemDto asCartItemDto(CartItemEntity entity) {
+        CartItemDto dto = modelMapper.map(entity, CartItemDto.class);
+        dto.setPrice(entity.getProduct().getPrice());
+        dto.setName(entity.getProduct().getName());
+        dto.setImage(modelMapper.map(entity.getProduct().getImages().getFirst(), ImageDto.class));
+        return dto;
     }
 }

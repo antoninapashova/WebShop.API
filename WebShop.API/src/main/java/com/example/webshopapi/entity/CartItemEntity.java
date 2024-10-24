@@ -15,9 +15,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartItemEntity extends BaseEntity {
-    private String name;
     private int quantity;
-    private double price;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(nullable = false)

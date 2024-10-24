@@ -54,8 +54,11 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
 
         cart.getItems().forEach(cartItem -> {
-            var orderItem = modelMapper.map(cartItem, OrderItem.class);
+            var orderItem = new OrderItem();
             orderItem.setProductId(cartItem.getProduct().getId());
+            orderItem.setName(cartItem.getProduct().getName());
+            orderItem.setPrice(cartItem.getProduct().getPrice());
+            orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setOrder(order);
             orderItemRepository.save(orderItem);
         });
