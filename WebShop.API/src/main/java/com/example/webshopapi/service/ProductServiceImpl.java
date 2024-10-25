@@ -47,9 +47,7 @@ public class ProductServiceImpl implements ProductService {
 
         List<ImageEntity> images = Arrays.stream(createProductRequest.getImages()).map(img -> {
             try {
-                ImageEntity image = new ImageEntity(img.getBytes());
-                image.setProduct(product);
-                return image;
+                return new ImageEntity(img.getBytes());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -117,9 +115,7 @@ public class ProductServiceImpl implements ProductService {
 
         List<ImageEntity> images = Arrays.stream(product.getImages()).map(img -> {
             try {
-                ImageEntity image = new ImageEntity(img.getBytes());
-                image.setProduct(productEntity);
-                return image;
+                return new ImageEntity(img.getBytes());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

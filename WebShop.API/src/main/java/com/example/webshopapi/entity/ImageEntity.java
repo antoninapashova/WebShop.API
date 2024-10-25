@@ -14,15 +14,11 @@ import java.sql.Types;
 @Data
 @Table(name = "images")
 @NoArgsConstructor
-@AllArgsConstructor
 public class ImageEntity extends BaseEntity {
     @Lob
     @JdbcTypeCode(Types.BINARY)
     @Column(name = "image_data", columnDefinition = "bytea")
     private byte[] img;
-
-    @ManyToOne(cascade = CascadeType.PERSIST, optional = false)
-    private ProductEntity product;
 
     public ImageEntity(byte[] img){
         this.img = img;
