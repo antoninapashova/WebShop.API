@@ -49,9 +49,9 @@ public class WebSecurityConfiguration {
                         .requestMatchers("/add-product", "/all-orders",
                                 "/set-order-approved", "/delete-product/{productId}",
                                 "/update-product/{productId}", "/all-categories",
-                                "/add-category/{categoryName}", "search/{name}",
+                                "/add-category/{categoryName}", "/search/{name}",
                                 "/set-order-status/{orderId}/{status}", "/get-order-items/{orderId}",
-                                "/get-product/{productId}")
+                                "/get-product/{productId}", "/delete-image/{productId}/{imageId}")
                         .hasRole("ADMIN")
                         .requestMatchers("/add-to-cart", "/get-cart",
                                 "/cart/changeItemQuantity", "/cart/setItemQuantity", "/create-order")
