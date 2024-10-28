@@ -16,4 +16,5 @@ public interface ProductService {
     ExecutionResult updateProduct(String productId, UpdateProductRequest productD);
     List<ProductDto> fetchAllByName(String name);
     TypedResult<ProductDto> getProductById(String productId);
+    ExecutionResult deleteImage(String productId, String imageId);
 }

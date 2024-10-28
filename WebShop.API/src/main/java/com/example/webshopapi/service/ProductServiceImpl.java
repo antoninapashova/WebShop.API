@@ -41,9 +41,10 @@ public class ProductServiceImpl implements ProductService {
             return new TypedResult<>(FailureType.UNKNOWN, String.format("Product with name %s already exists", createProductRequest.name));
         }
 
-        CategoryEntity category = categoryRepository.findById(UUID.fromString(createProductRequest.getCategoryId())).orElse(null);
-
         ProductEntity product = modelMapper.map(createProductRequest, ProductEntity.class);
+
+        CategoryEntity category = categoryRepository.findById(UUID.fromString(createProductRequest.getCategoryId())).orElse(null);
+        product.setCategory(category);
 
         List<ImageEntity> images = Arrays.stream(createProductRequest.getImages()).map(img -> {
             try {
@@ -54,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
         }).toList();
 
         product.setImages(images);
-        product.setCategory(category);
+
         productRepository.save(product);
         ProductDto dto = modelMapper.map(product, ProductDto.class);
 
@@ -74,6 +75,7 @@ public class ProductServiceImpl implements ProductService {
         if (productRepository.count() > 0) {
             return;
         }
+
         CategoryEntity category = categoryRepository.findByName("Sport accessories");
         ProductEntity productEntity = new ProductEntity();
         productEntity.setName("product1");
@@ -84,6 +86,7 @@ public class ProductServiceImpl implements ProductService {
         productEntity.setDescription("A product description is a form of marketing copy used to describe and " +
                 "explain the benefits of your product. In other words, it provides all the information and" +
                 " details of your product on your ecommerce site.");
+
         productRepository.save(productEntity);
     }
 
@@ -109,19 +112,24 @@ public class ProductServiceImpl implements ProductService {
             return new ExecutionResult(FailureType.NOT_FOUND, "Product not found!");
         }
 
+        CategoryEntity category = categoryRepository.findById(UUID.fromString(product.getCategoryId())).orElse(null);
+        productEntity.setCategory(category);
         productEntity.setName(product.getName());
         productEntity.setQuantity(product.getQuantity());
         productEntity.setPrice(product.getPrice());
 
-        List<ImageEntity> images = Arrays.stream(product.getImages()).map(img -> {
-            try {
-                return new ImageEntity(img.getBytes());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }).toList();
+        if (product.getImages() != null) {
+            List<ImageEntity> images = Arrays.stream(product.getImages()).map(img -> {
+                try {
+                    return new ImageEntity(img.getBytes());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }).toList();
 
-        productEntity.setImages(images);
+            productEntity.getImages().addAll(images);
+        }
+
         productRepository.save(productEntity);
 
         return new ExecutionResult("Product updated successfully!");
@@ -141,6 +149,25 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return new TypedResult<>(asDto(product));
+    }
+
+    @Override
+    public ExecutionResult deleteImage(String productId, String imageId) {
+        ProductEntity product = productRepository.findProductEntityById(UUID.fromString(productId));
+
+        if (product == null) {
+            return new ExecutionResult(FailureType.NOT_FOUND, "Product not found!");
+        }
+
+        boolean isRemoved = product.getImages().removeIf(e -> e.getId().equals(UUID.fromString(imageId)));
+
+        if (!isRemoved) {
+            return new ExecutionResult(FailureType.UNKNOWN, "Image was not removed");
+        }
+
+        productRepository.save(product);
+
+        return new ExecutionResult("Image is removed successfully");
     }
 
     private ProductDto asDto(ProductEntity productEntity) {
