@@ -30,19 +30,19 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result.getData());
     }
 
-    @GetMapping("all-products")
+    @GetMapping("/all-products")
     public ResponseEntity<List<ProductDto>> getAllProduct() {
         List<ProductDto> allProducts = productService.retrieveAllProducts();
         return ResponseEntity.status(HttpStatus.OK).body(allProducts);
     }
 
-    @GetMapping("search/{name}")
+    @GetMapping("/search/{name}")
     public ResponseEntity<?> getAllProductsByName(@PathVariable String name) {
         List<ProductDto> productsByName = productService.fetchAllByName(name);
         return ResponseEntity.status(HttpStatus.OK).body(productsByName);
     }
 
-    @DeleteMapping("delete-product/{productId}")
+    @DeleteMapping("/delete-product/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable String productId) {
         if (productId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -57,8 +57,8 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(result.getMessage());
     }
 
-    @PutMapping("update-product/{productId}")
-    public ResponseEntity<?> updateProduct(@PathVariable String productId, @RequestBody UpdateProductRequest product) {
+    @PutMapping("/update-product/{productId}")
+    public ResponseEntity<?> updateProduct(@PathVariable String productId, @ModelAttribute UpdateProductRequest product) {
         if (productId == null || product == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
@@ -66,10 +66,10 @@ public class ProductController {
         ExecutionResult result = productService.updateProduct(productId, product);
 
         if (result.getFailureType() == FailureType.NOT_FOUND) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result.getMessage());
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        return ResponseEntity.status(HttpStatus.OK).body(result.getMessage());
     }
 
     @GetMapping("/get-product/{productId}")
