@@ -15,4 +15,5 @@ public interface OrderService {
     ExecutionResult setOrderStatus(UUID orderId, boolean isApproved);
     ExecutionResult changeOrderStatus(UUID orderId, String status);
     TypedResult<List<OrderItemDto>> getOrderItems(UUID orderId);
+    TypedResult<OrderDto> getOrderById(UUID orderId);
 }

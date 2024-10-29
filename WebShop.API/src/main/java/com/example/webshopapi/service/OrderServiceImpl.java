@@ -10,6 +10,7 @@ import com.example.webshopapi.dto.requestObjects.CreateOrderDto;
 import com.example.webshopapi.entity.OrderEntity;
 import com.example.webshopapi.entity.OrderItem;
 import com.example.webshopapi.entity.ProductEntity;
+import com.example.webshopapi.entity.UserEntity;
 import com.example.webshopapi.entity.enums.OrderStatus;
 import com.example.webshopapi.repository.*;
 import jakarta.transaction.Transactional;
@@ -72,8 +73,6 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAll().stream()
                 .map(order -> {
                     OrderDto orderDto = asDto(order);
-                    orderDto.setOrderDate(order.getOrderDate().format(CUSTOM_FORMATTER));
-                    orderDto.setDeliveryDate(order.getDeliveryDate().format(CUSTOM_FORMATTER));
                     if (order.getIsApproved() != null) {
                         if (order.getIsApproved()) {
                             orderDto.setIsApproved("Approved");
@@ -81,12 +80,7 @@ public class OrderServiceImpl implements OrderService {
                             orderDto.setIsApproved("Rejected");
                         }
                     }
-                    var user = order.getUser();
-                    orderDto.setClientName(user.getFirstName() + " " + user.getLastName());
-                    double totalAmount = order.getOrderItems().stream()
-                            .mapToDouble(item -> item.getQuantity() * item.getPrice()).sum();
 
-                    orderDto.setTotalAmount(totalAmount);
                     return orderDto;
                 }).toList();
     }
@@ -139,6 +133,17 @@ public class OrderServiceImpl implements OrderService {
         return new TypedResult<>(dtos);
     }
 
+    @Override
+    public TypedResult<OrderDto> getOrderById(UUID orderId) {
+        OrderEntity entity = this.orderRepository.findById(orderId).orElse(null);
+
+        if (entity == null) {
+            return new TypedResult<>(FailureType.NOT_FOUND, "Order not found!");
+        }
+
+        return new TypedResult<>(asDto(entity));
+    }
+
     private void completeOrder(OrderEntity order) {
         List<OrderItem> orderItems = new ArrayList<>(order.getOrderItems()); // Ensure you work with a fresh copy
 
@@ -155,7 +160,7 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
-    private void updateOrderItems(OrderEntity order,OrderItem orderItem, ProductEntity product, boolean isProductUnavailable) {
+    private void updateOrderItems(OrderEntity order, OrderItem orderItem, ProductEntity product, boolean isProductUnavailable) {
         if (isProductUnavailable) {
             orderItemRepository.delete(orderItem);
             order.getOrderItems().remove(orderItem);
@@ -181,7 +186,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderDto asDto(OrderEntity orderEntity) {
-        return modelMapper.map(orderEntity, OrderDto.class);
+        OrderDto orderDto = modelMapper.map(orderEntity, OrderDto.class);
+        orderDto.setOrderDate(orderEntity.getOrderDate().format(CUSTOM_FORMATTER));
+        orderDto.setDeliveryDate(orderEntity.getDeliveryDate().format(CUSTOM_FORMATTER));
+        UserEntity user = orderEntity.getUser();
+        orderDto.setClientName(user.getFirstName() + " " + user.getLastName());
+
+        double totalAmount = orderEntity.getOrderItems().stream()
+                .mapToDouble(item -> item.getQuantity() * item.getPrice()).sum();
+
+        orderDto.setTotalAmount(totalAmount);
+        return orderDto;
     }
 
     private OrderItemDto asOrderItemDto(OrderItem orderItem) {

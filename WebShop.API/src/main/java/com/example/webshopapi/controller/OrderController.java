@@ -74,4 +74,17 @@ public class OrderController {
         TypedResult<List<OrderItemDto>> result = orderService.getOrderItems(UUID.fromString(orderId));
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @GetMapping("/get-order/{orderId}")
+    public ResponseEntity<?> getOrderById(@PathVariable String orderId){
+        if (orderId == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        TypedResult<OrderDto> result = orderService.getOrderById(UUID.fromString(orderId));
+
+        if (result.getFailureType() == FailureType.NOT_FOUND) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result.getData());
+    }
 }
