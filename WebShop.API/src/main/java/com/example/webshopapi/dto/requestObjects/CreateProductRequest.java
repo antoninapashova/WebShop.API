@@ -10,5 +10,5 @@ public class CreateProductRequest {
     public double price;
     public String description;
     public String categoryId;
-    private MultipartFile[] images;
+    public MultipartFile[] images;
 }
