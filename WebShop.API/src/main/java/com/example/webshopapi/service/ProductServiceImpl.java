@@ -34,11 +34,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public TypedResult<ProductDto> addProduct(CreateProductRequest createProductRequest) throws Exception {
+    public ExecutionResult addProduct(CreateProductRequest createProductRequest) throws Exception {
         boolean isExists = isProductExist(createProductRequest.name);
 
         if (isExists) {
-            return new TypedResult<>(FailureType.UNKNOWN, String.format("Product with name %s already exists", createProductRequest.name));
+            return new ExecutionResult(FailureType.UNKNOWN, String.format("Product with name %s already exists", createProductRequest.name));
         }
 
         ProductEntity product = modelMapper.map(createProductRequest, ProductEntity.class);
@@ -55,11 +55,9 @@ public class ProductServiceImpl implements ProductService {
         }).toList();
 
         product.setImages(images);
-
         productRepository.save(product);
-        ProductDto dto = modelMapper.map(product, ProductDto.class);
 
-        return new TypedResult<>(dto);
+        return new ExecutionResult("Product added successfully!");
     }
 
     @Override
@@ -81,7 +79,6 @@ public class ProductServiceImpl implements ProductService {
         productEntity.setName("product1");
         productEntity.setQuantity(10);
         productEntity.setPrice(10.5);
-        productEntity.setItems(new ArrayList<>());
         productEntity.setCategory(category);
         productEntity.setDescription("A product description is a form of marketing copy used to describe and " +
                 "explain the benefits of your product. In other words, it provides all the information and" +

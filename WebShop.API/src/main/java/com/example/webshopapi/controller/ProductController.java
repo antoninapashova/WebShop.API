@@ -21,13 +21,17 @@ public class ProductController {
 
     @PostMapping("add-product")
     public ResponseEntity<?> addProduct(@ModelAttribute CreateProductRequest createProductRequest) throws Exception {
-        TypedResult<ProductDto> result = productService.addProduct(createProductRequest);
-
-        if (result.getFailureType() == FailureType.UNKNOWN) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessage());
+        if(createProductRequest == null ){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Request body not found!");
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(result.getData());
+        ExecutionResult result = productService.addProduct(createProductRequest);
+
+        if (result.getFailureType() == FailureType.UNKNOWN) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @GetMapping("/all-products")

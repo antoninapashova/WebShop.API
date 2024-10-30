@@ -9,7 +9,7 @@ import com.example.webshopapi.dto.requestObjects.UpdateProductRequest;
 import java.util.List;
 
 public interface ProductService {
-    TypedResult<ProductDto> addProduct(CreateProductRequest createProductRequest) throws Exception;
+    ExecutionResult addProduct(CreateProductRequest createProductRequest) throws Exception;
     List<ProductDto> retrieveAllProducts();
     void initProducts();
     ExecutionResult deleteProduct(String productId);
