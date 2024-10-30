@@ -5,25 +5,27 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
-@EqualsAndHashCode(callSuper = true)
+import java.util.UUID;
+
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Data
 @Table(name = "cart_items")
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartItemEntity extends BaseEntity {
+public class CartItemEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
     private int quantity;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(nullable = false)
-    @OnDelete(action= OnDeleteAction.CASCADE)
-    private CartEntity cart;
-
     @ManyToOne
-    @JoinColumn(name = "product_id")
-    @OnDelete(action= OnDeleteAction.CASCADE)
     private ProductEntity product;
+
+    public CartItemEntity(int quantity, ProductEntity product) {
+        this.quantity = quantity;
+        this.product = product;
+    }
 }
