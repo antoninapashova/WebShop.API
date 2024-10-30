@@ -8,13 +8,19 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 
 import java.sql.Types;
+import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Data
 @Table(name = "images")
 @NoArgsConstructor
-public class ImageEntity extends BaseEntity {
+public class ImageEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
     @Lob
     @JdbcTypeCode(Types.BINARY)
     @Column(name = "image_data", columnDefinition = "bytea")
