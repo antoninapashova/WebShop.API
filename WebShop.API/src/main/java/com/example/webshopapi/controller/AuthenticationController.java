@@ -1,11 +1,11 @@
 package com.example.webshopapi.controller;
 
+import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.AuthenticationResponse;
 import com.example.webshopapi.dto.requestObjects.AuthenticationRequest;
 import com.example.webshopapi.dto.requestObjects.SignupRequest;
-import com.example.webshopapi.dto.UserDto;
 import com.example.webshopapi.service.auth.AuthService;
 import com.example.webshopapi.utils.JwtUtil;
 import lombok.AllArgsConstructor;
@@ -52,11 +52,14 @@ public class AuthenticationController {
 
     @PostMapping("sign-up")
     public ResponseEntity<?> signUp(@RequestBody SignupRequest signupRequest) {
-        if (authService.hasUserWithEmail(signupRequest.getEmail())) {
-            return new ResponseEntity<>("User already Exists", HttpStatus.NOT_ACCEPTABLE);
+        if (signupRequest == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No data provided");
+
+        ExecutionResult result = authService.createUser(signupRequest);
+
+        if(result.getFailureType() == FailureType.UNKNOWN){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(result);
         }
 
-        UserDto userDto = authService.createUser(signupRequest);
-        return new ResponseEntity<>(userDto, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

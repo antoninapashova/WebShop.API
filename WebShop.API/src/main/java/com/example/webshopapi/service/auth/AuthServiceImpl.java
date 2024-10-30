@@ -1,9 +1,9 @@
 package com.example.webshopapi.service.auth;
 
+import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.requestObjects.SignupRequest;
-import com.example.webshopapi.dto.UserDto;
 import com.example.webshopapi.entity.UserEntity;
 import com.example.webshopapi.entity.enums.UserRole;
 import com.example.webshopapi.repository.UserRepository;
@@ -24,15 +24,23 @@ public class AuthServiceImpl implements AuthService {
     private ModelMapper modelMapper;
     private PasswordEncoder passwordEncoder;
 
-    public UserDto createUser(SignupRequest signupRequest) {
+    public ExecutionResult createUser(SignupRequest signupRequest) {
+         boolean isEmailMatch = hasUserWithEmail(signupRequest.getEmail());
+         if(isEmailMatch){
+             return new ExecutionResult(FailureType.UNKNOWN, "User with this email already exists!");
+         }
+
+         boolean isUsernameMatch = hasUserWithUsername(signupRequest.getUsername());
+         if (isUsernameMatch) {
+            return new ExecutionResult(FailureType.UNKNOWN,"User with this username already exists!");
+         }
+
         UserEntity userEntity = modelMapper.map(signupRequest, UserEntity.class);
         userEntity.setPassword(new BCryptPasswordEncoder().encode(signupRequest.getPassword()));
         userEntity.setRole(UserRole.CUSTOMER);
+        userRepository.save(userEntity);
 
-        UserEntity createdUser = userRepository.save(userEntity);
-        UserDto userDto = new UserDto();
-        userDto.setId(createdUser.getId());
-        return userDto;
+        return new ExecutionResult("User signup successfully!");
     }
 
     @Override
@@ -63,15 +71,18 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public TypedResult<String> loadUserRole(String username) {
         UserEntity user = userRepository.findByUsername(username).orElse(null);
-        if(user==null){
+        if (user == null) {
             return new TypedResult<>(FailureType.NOT_FOUND, "User not found");
         }
 
         return new TypedResult<>(user.getRole().name());
     }
 
-    @Override
-    public boolean hasUserWithEmail(String email) {
+    private boolean hasUserWithEmail(String email) {
         return userRepository.findFirstByEmail(email).isPresent();
+    }
+
+    private boolean hasUserWithUsername(String username) {
+        return userRepository.findByUsername(username).isPresent();
     }
 }
