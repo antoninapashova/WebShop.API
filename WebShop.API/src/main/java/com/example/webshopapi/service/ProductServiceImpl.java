@@ -148,25 +148,6 @@ public class ProductServiceImpl implements ProductService {
         return new TypedResult<>(asDto(product));
     }
 
-    @Override
-    public ExecutionResult deleteImage(String productId, String imageId) {
-        ProductEntity product = productRepository.findProductEntityById(UUID.fromString(productId));
-
-        if (product == null) {
-            return new ExecutionResult(FailureType.NOT_FOUND, "Product not found!");
-        }
-
-        boolean isRemoved = product.getImages().removeIf(e -> e.getId().equals(UUID.fromString(imageId)));
-
-        if (!isRemoved) {
-            return new ExecutionResult(FailureType.UNKNOWN, "Image was not removed");
-        }
-
-        productRepository.save(product);
-
-        return new ExecutionResult("Image is removed successfully");
-    }
-
     private ProductDto asDto(ProductEntity productEntity) {
         ProductDto productDto = modelMapper.map(productEntity, ProductDto.class);
         productDto.setId(productEntity.getId().toString());

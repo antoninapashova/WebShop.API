@@ -90,21 +90,4 @@ public class ProductController {
 
         return ResponseEntity.status(HttpStatus.OK).body(result.getData());
     }
-
-    @DeleteMapping("/delete-image/{productId}/{imageId}")
-    public ResponseEntity<?> deleteImage(@PathVariable String productId, @PathVariable String imageId) {
-        if (imageId == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-
-        ExecutionResult result = productService.deleteImage(productId, imageId);
-
-        if (result.getFailureType() == FailureType.NOT_FOUND) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result.getMessage());
-        } else if (result.getFailureType() == FailureType.UNKNOWN) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(result.getMessage());
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(result.getMessage());
-    }
 }
