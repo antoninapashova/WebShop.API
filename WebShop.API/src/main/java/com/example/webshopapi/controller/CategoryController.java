@@ -24,16 +24,15 @@ public class CategoryController {
         TypedResult<List<CategoryDto>> result = categoryService.retrieveAllCategories();
 
         if (result.getFailureType() == FailureType.UNKNOWN) {
-            return ResponseEntity.status(HttpStatus.OK).body(result.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(result);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(result.getData());
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @PostMapping("/add-category/{categoryName}")
     public ResponseEntity<?> createCategory(@PathVariable String categoryName) {
         TypedResult<CategoryDto> newCategory = categoryService.createNewCategory(categoryName);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(newCategory.getData());
     }
 
