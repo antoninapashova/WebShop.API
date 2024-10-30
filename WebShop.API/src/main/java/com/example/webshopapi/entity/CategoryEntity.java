@@ -6,17 +6,19 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Data
 @Table(name = "categories")
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryEntity extends BaseEntity {
-    private String name;
+public class CategoryEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "category", cascade = CascadeType.REMOVE)
-    private List<ProductEntity> products;
+    @Column(nullable = false, unique = true, updatable = false)
+    private String name;
 }
