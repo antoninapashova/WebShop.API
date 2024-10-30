@@ -5,7 +5,7 @@ import lombok.*;
 
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Data
 @Getter
@@ -13,13 +13,20 @@ import java.util.UUID;
 @Table(name = "order_items")
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderItem extends BaseEntity{
-    private String name;
-    private int quantity;
-    private double price;
-    private UUID productId;
+public class OrderItem{
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "order_id")
-    private OrderEntity order;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private int quantity;
+
+    @Column(nullable = false)
+    private double price;
+
+    private UUID productId;
 }
