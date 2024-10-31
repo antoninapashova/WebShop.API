@@ -104,13 +104,15 @@ public class CartServiceImpl implements CartService {
 
         if (cartItem == null) {
             cartItem = new CartItemEntity(1, productEntity);
-            cartItemRepository.save(cartItem);
+            cart.getItems().add(cartItem);
             result = new ExecutionResult("Product added successfully");
         } else {
             cartItem.setQuantity(cartItem.getQuantity() + 1);
-            cartItemRepository.save(cartItem);
+            cart.getItems().add(cartItem);
             result = new ExecutionResult("Product quantity increased successfully");
         }
+
+        cartRepository.save(cart);
 
         return result;
     }
