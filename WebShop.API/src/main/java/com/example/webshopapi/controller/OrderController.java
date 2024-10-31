@@ -68,7 +68,7 @@ public class OrderController {
     }
 
     @GetMapping("/get-order-items/{orderId}")
-    public ResponseEntity<?> setOrderStatus(@PathVariable String orderId) {
+    public ResponseEntity<?> getOrderItems(@PathVariable String orderId) {
         if (orderId == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         TypedResult<List<OrderItemDto>> result = orderService.getOrderItems(UUID.fromString(orderId));
