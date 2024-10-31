@@ -7,10 +7,7 @@ import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.OrderDto;
 import com.example.webshopapi.dto.OrderItemDto;
 import com.example.webshopapi.dto.requestObjects.CreateOrderDto;
-import com.example.webshopapi.entity.OrderEntity;
-import com.example.webshopapi.entity.OrderItem;
-import com.example.webshopapi.entity.ProductEntity;
-import com.example.webshopapi.entity.UserEntity;
+import com.example.webshopapi.entity.*;
 import com.example.webshopapi.entity.enums.OrderStatus;
 import com.example.webshopapi.repository.*;
 import jakarta.transaction.Transactional;
@@ -37,34 +34,35 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public ExecutionResult createOrder(CreateOrderDto dto) {
-        var cart = cartRepository.getCartEntityByUserId(dto.getUserId());
+        CartEntity cart = cartRepository.getCartEntityByUserId(dto.getUserId());
         if (cart == null) return new ExecutionResult(FailureType.NOT_FOUND, "Cart not found!");
 
-        var user = userRepository.findById(dto.getUserId());
-        if (user.isEmpty()) {
+        UserEntity user = userRepository.findById(dto.getUserId()).orElse(null);
+        if (user == null) {
             return new ExecutionResult(FailureType.NOT_FOUND, "User not found!");
         }
 
-        var order = new OrderEntity();
-        order.setUser(user.get());
+        OrderEntity order = new OrderEntity();
+        order.setUser(user);
         order.setOrderDate(LocalDateTime.now());
         order.setDeliveryDate(DateTimeExtension.AddBusinessDays(LocalDateTime.now(), 3));
         order.setAddress(dto.getAddress());
         order.setOrderStatus(OrderStatus.Pending);
         order.setOrderDescription(dto.getDescription());
-        orderRepository.save(order);
 
-        cart.getItems().forEach(cartItem -> {
-            var orderItem = new OrderItem();
+        List<OrderItem> orderItems = cart.getItems().stream().map(cartItem -> {
+            OrderItem orderItem = new OrderItem();
             orderItem.setProductId(cartItem.getProduct().getId());
             orderItem.setName(cartItem.getProduct().getName());
             orderItem.setPrice(cartItem.getProduct().getPrice());
             orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setOrder(order);
-            orderItemRepository.save(orderItem);
-        });
+            return orderItem;
+        }).toList();
 
+        order.setOrderItems(orderItems);
+        orderRepository.save(order);
         cartRepository.delete(cart);
+
         return new ExecutionResult("Order send successfully");
     }
 
@@ -128,9 +126,9 @@ public class OrderServiceImpl implements OrderService {
             return new TypedResult<>(FailureType.NOT_FOUND, "No order items found for this order");
         }
 
-        List<OrderItemDto> dtos = orderItems.stream().map(this::asOrderItemDto).toList();
+        List<OrderItemDto> items = orderItems.stream().map(this::asOrderItemDto).toList();
 
-        return new TypedResult<>(dtos);
+        return new TypedResult<>(items);
     }
 
     @Override
@@ -157,7 +155,6 @@ public class OrderServiceImpl implements OrderService {
                 decreaseProductsQuantity(orderItem, product);
             }
         });
-
     }
 
     private void updateOrderItems(OrderEntity order, OrderItem orderItem, ProductEntity product, boolean isProductUnavailable) {
@@ -196,6 +193,7 @@ public class OrderServiceImpl implements OrderService {
                 .mapToDouble(item -> item.getQuantity() * item.getPrice()).sum();
 
         orderDto.setTotalAmount(totalAmount);
+
         return orderDto;
     }
 
