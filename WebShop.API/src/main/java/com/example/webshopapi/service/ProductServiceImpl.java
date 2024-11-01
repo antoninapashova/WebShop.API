@@ -78,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
         productEntity.setDeleted(true);
         productRepository.save(productEntity);
 
-        return new ExecutionResult("Product removed successfully");
+        return new ExecutionResult("Product removed successfully!");
     }
 
     @Override
@@ -94,6 +94,7 @@ public class ProductServiceImpl implements ProductService {
         productEntity.setName(product.getName());
         productEntity.setQuantity(product.getQuantity());
         productEntity.setPrice(product.getPrice());
+        productEntity.getImages().clear();
 
         if (product.getImages() != null) {
             List<ImageEntity> images = Arrays.stream(product.getImages()).map(img -> {
