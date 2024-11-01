@@ -16,7 +16,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -66,25 +65,6 @@ public class ProductServiceImpl implements ProductService {
                 .stream()
                 .filter(product -> !product.isDeleted())
                 .map(this::asDto).toList();
-    }
-
-    @Override
-    public void initProducts() {
-        if (productRepository.count() > 0) {
-            return;
-        }
-
-        CategoryEntity category = categoryRepository.findByName("Sport accessories");
-        ProductEntity productEntity = new ProductEntity();
-        productEntity.setName("product1");
-        productEntity.setQuantity(10);
-        productEntity.setPrice(10.5);
-        productEntity.setCategory(category);
-        productEntity.setDescription("A product description is a form of marketing copy used to describe and " +
-                "explain the benefits of your product. In other words, it provides all the information and" +
-                " details of your product on your ecommerce site.");
-
-        productRepository.save(productEntity);
     }
 
     @Override

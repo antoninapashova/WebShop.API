@@ -11,7 +11,6 @@ import java.util.List;
 public interface ProductService {
     ExecutionResult addProduct(CreateProductRequest createProductRequest) throws Exception;
     List<ProductDto> retrieveAllProducts();
-    void initProducts();
     ExecutionResult deleteProduct(String productId);
     ExecutionResult updateProduct(String productId, UpdateProductRequest productD);
     List<ProductDto> fetchAllByName(String name);
