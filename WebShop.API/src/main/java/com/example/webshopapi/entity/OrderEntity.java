@@ -44,4 +44,8 @@ public class OrderEntity {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private List<OrderItem> orderItems;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="coupon_id")
+    private CouponEntity couponEntity;
 }
