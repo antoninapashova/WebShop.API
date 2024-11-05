@@ -30,6 +30,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
+    private final CouponRepository couponRepository;
 
     @Transactional
     @Override
@@ -50,6 +51,16 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(OrderStatus.Pending);
         order.setOrderDescription(dto.getDescription());
 
+        if(dto.getCouponCode() != null) {
+            CouponEntity coupon = couponRepository.findByCode(dto.getCouponCode()).orElse(null);
+
+            if (coupon == null) {
+                return new ExecutionResult(FailureType.NOT_FOUND, "Coupon with code " + dto.getCouponCode() + " not found!");
+            }
+
+            order.setCouponEntity(coupon);
+        }
+
         List<OrderItem> orderItems = cart.getItems().stream().map(cartItem -> {
             OrderItem orderItem = new OrderItem();
             orderItem.setProductId(cartItem.getProduct().getId());
@@ -63,7 +74,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         cartRepository.delete(cart);
 
-        return new ExecutionResult("Order send successfully");
+        return new ExecutionResult("Order send successfully!");
     }
 
     @Override
@@ -191,6 +202,10 @@ public class OrderServiceImpl implements OrderService {
 
         double totalAmount = orderEntity.getOrderItems().stream()
                 .mapToDouble(item -> item.getQuantity() * item.getPrice()).sum();
+
+        if (orderEntity.getCouponEntity() != null) {
+            totalAmount -= totalAmount * orderEntity.getCouponEntity().getDiscount() / 100.0;
+        }
 
         orderDto.setTotalAmount(totalAmount);
 
