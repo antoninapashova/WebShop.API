@@ -95,6 +95,18 @@ public class CartServiceImpl implements CartService {
         return result;
     }
 
+    @Override
+    public ExecutionResult deleteItem(UUID itemId) {
+        boolean isExists = cartItemRepository.existsById(itemId);
+
+        if(!isExists) {
+            return new ExecutionResult(FailureType.NOT_FOUND, "Item not found!");
+        }
+
+        cartItemRepository.deleteById(itemId);
+        return new ExecutionResult("Item removed successfully!");
+    }
+
     private ExecutionResult assignItemToCartAsync(CartEntity cart, UUID productId) {
         ProductEntity productEntity = productRepository.findProductEntityById(productId);
         if (productEntity == null) return new ExecutionResult(FailureType.NOT_FOUND,"Product does not exist!");

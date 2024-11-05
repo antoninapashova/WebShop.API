@@ -12,4 +12,5 @@ public interface CartService {
     TypedResult<CartDto> getCartByUserId(UUID userId);
     void setCartItemQuantity(String cartItemId, int quantity);
     ExecutionResult changeItemQuantity(ChangeCartItemQuantityRequest increaseQuantity);
+    ExecutionResult deleteItem(UUID itemId);
 }

@@ -27,7 +27,7 @@ public class CartController {
         if (productId == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         ExecutionResult result = cartService.addProductToCart(UUID.fromString(productId), user.getUserId());
-        if(result.getFailureType() == FailureType.NOT_FOUND){
+        if (result.getFailureType() == FailureType.NOT_FOUND) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result.getMessage());
         }
 
@@ -38,7 +38,7 @@ public class CartController {
     public ResponseEntity<?> getCart(@AuthenticationPrincipal UserPrinciple user) {
         TypedResult<CartDto> result = cartService.getCartByUserId(user.getUserId());
 
-        if(result.getFailureType() == FailureType.NOT_FOUND){
+        if (result.getFailureType() == FailureType.NOT_FOUND) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result.getMessage());
         }
 
@@ -51,7 +51,7 @@ public class CartController {
 
         ExecutionResult result = cartService.changeItemQuantity(changeQuantity);
 
-        if(result.getFailureType() == FailureType.NOT_FOUND) {
+        if (result.getFailureType() == FailureType.NOT_FOUND) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
         }
 
@@ -64,5 +64,18 @@ public class CartController {
 
         cartService.setCartItemQuantity(setQuantity.cartItemId, setQuantity.quantity);
         return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @DeleteMapping("/delete/{itemId}")
+    public ResponseEntity<?> deleteItem(@PathVariable String itemId) {
+        if (itemId == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        ExecutionResult result = cartService.deleteItem(UUID.fromString(itemId));
+
+        if (result.getFailureType() == FailureType.NOT_FOUND) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }
