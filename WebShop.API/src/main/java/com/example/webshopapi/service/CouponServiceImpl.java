@@ -10,6 +10,7 @@ import com.example.webshopapi.repository.CouponRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -25,7 +26,7 @@ public class CouponServiceImpl implements CouponService {
     @Override
     public ExecutionResult createCoupon(CreateCouponRequest request) {
 
-        if(couponRepository.existsByCode(request.getCode())){
+        if (couponRepository.existsByCode(request.getCode())) {
             return new ExecutionResult(FailureType.UNKNOWN, "Coupon code already exists!");
         }
 
@@ -37,16 +38,38 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     public TypedResult<List<CouponDto>> getAllCoupons() {
-       List<CouponDto> dtos =  couponRepository.findAll().stream().map(this::asDto).toList();
+        List<CouponDto> dtos = couponRepository.findAll().stream().map(this::asDto).toList();
 
-       if(dtos.isEmpty()){
-           return new TypedResult<>(FailureType.NOT_FOUND, "No coupons found!");
-       }
+        if (dtos.isEmpty()) {
+            return new TypedResult<>(FailureType.NOT_FOUND, "No coupons found!");
+        }
 
-       return new TypedResult<>(dtos);
+        return new TypedResult<>(dtos);
     }
 
-    private CouponDto asDto(CouponEntity entity){
+    @Override
+    public TypedResult<CouponEntity> getCouponByCode(String code) {
+        CouponEntity coupon = couponRepository.findByCode(code).orElse(null);
+
+        if (coupon == null) {
+            return new TypedResult<>(FailureType.NOT_FOUND, "Discount not found!");
+        }
+
+        if (couponIsExpired(coupon)) {
+            return new TypedResult<>(FailureType.UNKNOWN, "Coupon with code " + code + " has expired!");
+        }
+
+        return new TypedResult<>(coupon);
+    }
+
+    private boolean couponIsExpired(CouponEntity coupon) {
+        Date currentDate = new Date();
+        Date expirationDate = coupon.getExpirationDate();
+
+        return expirationDate != null && currentDate.after(expirationDate);
+    }
+
+    private CouponDto asDto(CouponEntity entity) {
         return modelMapper.map(entity, CouponDto.class);
     }
 }

@@ -5,13 +5,11 @@ import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CouponDto;
 import com.example.webshopapi.dto.requestObjects.CreateCouponRequest;
+import com.example.webshopapi.entity.CouponEntity;
 import com.example.webshopapi.service.CouponService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -42,6 +40,17 @@ public class CouponController {
     @GetMapping("/all-coupons")
     public ResponseEntity<?> getAllCoupons() {
         TypedResult<List<CouponDto>> result = couponService.getAllCoupons();
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/coupon/{code}")
+    public ResponseEntity<?> getCouponByCode(@PathVariable String code) {
+        TypedResult<CouponEntity> result = couponService.getCouponByCode(code);
+
+        if(result.getFailureType() == FailureType.UNKNOWN){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(result);
+        }
+
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }
