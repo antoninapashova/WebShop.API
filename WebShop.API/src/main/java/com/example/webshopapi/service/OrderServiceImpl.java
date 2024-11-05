@@ -6,6 +6,8 @@ import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.OrderDto;
 import com.example.webshopapi.dto.OrderItemDto;
+import com.example.webshopapi.dto.UserOrderDto;
+import com.example.webshopapi.dto.UserOrderItemDto;
 import com.example.webshopapi.dto.requestObjects.CreateOrderDto;
 import com.example.webshopapi.entity.*;
 import com.example.webshopapi.entity.enums.OrderStatus;
@@ -51,7 +53,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(OrderStatus.Pending);
         order.setOrderDescription(dto.getDescription());
 
-        if(dto.getCouponCode() != null) {
+        if (dto.getCouponCode() != null) {
             CouponEntity coupon = couponRepository.findByCode(dto.getCouponCode()).orElse(null);
 
             if (coupon == null) {
@@ -153,6 +155,23 @@ public class OrderServiceImpl implements OrderService {
         return new TypedResult<>(asDto(entity));
     }
 
+    @Override
+    public List<UserOrderDto> getUserOrders(UUID userId) {
+        return orderRepository.findAllByUserId(userId).stream()
+                .map(order -> {
+                    UserOrderDto userOrderDto = modelMapper.map(order, UserOrderDto.class);
+                    List<UserOrderItemDto> items = order.getOrderItems().stream().map(this::asUserOrderItemDto).toList();
+                    userOrderDto.setItems(items);
+                    userOrderDto.setOrderDate(order.getOrderDate().format(CUSTOM_FORMATTER));
+
+                    double totalAmount = order.getOrderItems().stream()
+                            .mapToDouble(item -> item.getQuantity() * item.getPrice()).sum();
+
+                    userOrderDto.setTotalAmount(totalAmount);
+                    return userOrderDto;
+                }).toList();
+    }
+
     private void completeOrder(OrderEntity order) {
         List<OrderItem> orderItems = new ArrayList<>(order.getOrderItems()); // Ensure you work with a fresh copy
 
@@ -172,7 +191,6 @@ public class OrderServiceImpl implements OrderService {
         if (isProductUnavailable) {
             orderItemRepository.delete(orderItem);
             order.getOrderItems().remove(orderItem);
-
         } else {
             boolean isProductQuantityInsufficient = orderItem.getQuantity() > product.getQuantity();
             if (isProductQuantityInsufficient) {
@@ -210,6 +228,13 @@ public class OrderServiceImpl implements OrderService {
         orderDto.setTotalAmount(totalAmount);
 
         return orderDto;
+    }
+
+    private UserOrderItemDto asUserOrderItemDto(OrderItem item) {
+        ProductEntity product = this.productRepository.findProductEntityById(item.getProductId());
+        UserOrderItemDto itemDto = modelMapper.map(item, UserOrderItemDto.class);
+        itemDto.setImg(product.getImages().getFirst().getImg());
+        return itemDto;
     }
 
     private OrderItemDto asOrderItemDto(OrderItem orderItem) {

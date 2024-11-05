@@ -5,6 +5,7 @@ import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.OrderDto;
 import com.example.webshopapi.dto.OrderItemDto;
+import com.example.webshopapi.dto.UserOrderDto;
 import com.example.webshopapi.dto.requestObjects.CreateOrderDto;
 import com.example.webshopapi.dto.requestObjects.SetOrderStatusRequest;
 import com.example.webshopapi.entity.UserPrinciple;
@@ -86,5 +87,11 @@ public class OrderController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(result.getData());
+    }
+
+    @GetMapping("/user/orders")
+    public ResponseEntity<?> getUserOrders(@AuthenticationPrincipal UserPrinciple user){
+        List<UserOrderDto> orders = orderService.getUserOrders(user.getUserId());
+        return ResponseEntity.status(HttpStatus.OK).body(orders);
     }
 }

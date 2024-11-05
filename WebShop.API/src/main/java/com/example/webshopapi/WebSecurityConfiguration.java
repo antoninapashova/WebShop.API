@@ -55,7 +55,7 @@ public class WebSecurityConfiguration {
                         .hasRole("ADMIN")
                         .requestMatchers("/add-to-cart", "/get-cart",
                                 "/cart/changeItemQuantity", "/cart/setItemQuantity",
-                                "/create-order", "/coupon/{code}", "/delete/{itemId}")
+                                "/create-order", "/coupon/{code}", "/delete/{itemId}", "/user/orders")
                         .hasRole("CUSTOMER")
                         .anyRequest().authenticated())
                 .cors(c -> c.configurationSource(customCorsConfiguration))
