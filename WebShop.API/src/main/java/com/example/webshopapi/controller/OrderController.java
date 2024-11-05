@@ -26,7 +26,7 @@ public class OrderController {
     }
 
     @PostMapping("/create-order")
-    public ResponseEntity<?> createOrder(@AuthenticationPrincipal UserPrinciple principle, @RequestBody CreateOrderDto order) {
+    public ResponseEntity<?> createOrder(@AuthenticationPrincipal UserPrinciple principle, @ModelAttribute CreateOrderDto order) {
         order.setUserId(principle.getUserId());
         ExecutionResult result = orderService.createOrder(order);
 
