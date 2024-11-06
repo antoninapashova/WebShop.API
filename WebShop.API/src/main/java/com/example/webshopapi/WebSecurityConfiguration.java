@@ -51,7 +51,8 @@ public class WebSecurityConfiguration {
                                 "/update-product/{productId}", "/all-categories",
                                 "/add-category/{categoryName}", "/search/{name}",
                                 "/set-order-status/{orderId}/{status}", "/get-order-items/{orderId}",
-                                "/get-product/{productId}", "/delete-image/{productId}/{imageId}", "/create-coupon", "/all-coupons")
+                                "/get-product/{productId}", "/delete-image/{productId}/{imageId}",
+                                "/create-coupon", "/all-coupons", "/order/analytics")
                         .hasRole("ADMIN")
                         .requestMatchers("/add-to-cart", "/get-cart",
                                 "/cart/changeItemQuantity", "/cart/setItemQuantity",

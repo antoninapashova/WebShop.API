@@ -3,10 +3,7 @@ package com.example.webshopapi.controller;
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
-import com.example.webshopapi.dto.OrderDto;
-import com.example.webshopapi.dto.OrderItemDto;
-import com.example.webshopapi.dto.UserOrderDto;
-import com.example.webshopapi.dto.requestObjects.CreateOrderDto;
+import com.example.webshopapi.dto.*;
 import com.example.webshopapi.dto.requestObjects.SetOrderStatusRequest;
 import com.example.webshopapi.entity.UserPrinciple;
 import com.example.webshopapi.service.OrderService;
@@ -93,5 +90,10 @@ public class OrderController {
     public ResponseEntity<?> getUserOrders(@AuthenticationPrincipal UserPrinciple user){
         List<UserOrderDto> orders = orderService.getUserOrders(user.getUserId());
         return ResponseEntity.status(HttpStatus.OK).body(orders);
+    }
+
+    @GetMapping("/order/analytics")
+    public ResponseEntity<AnalyticsResponse> getAnalytics(){
+        return ResponseEntity.ok(orderService.calculateAnalytics());
     }
 }

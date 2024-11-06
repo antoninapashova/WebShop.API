@@ -4,11 +4,7 @@ import com.example.webshopapi.config.DateTimeExtension;
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
-import com.example.webshopapi.dto.OrderDto;
-import com.example.webshopapi.dto.OrderItemDto;
-import com.example.webshopapi.dto.UserOrderDto;
-import com.example.webshopapi.dto.UserOrderItemDto;
-import com.example.webshopapi.dto.requestObjects.CreateOrderDto;
+import com.example.webshopapi.dto.*;
 import com.example.webshopapi.entity.*;
 import com.example.webshopapi.entity.enums.OrderStatus;
 import com.example.webshopapi.repository.*;
@@ -17,7 +13,9 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -170,6 +168,82 @@ public class OrderServiceImpl implements OrderService {
                     userOrderDto.setTotalAmount(totalAmount);
                     return userOrderDto;
                 }).toList();
+    }
+
+    @Override
+    public AnalyticsResponse calculateAnalytics() {
+        LocalDate currentDate = LocalDate.now();
+        LocalDate previousMonthDate = currentDate.minusMonths(1);
+
+        Long currentMonthOrders = getTotalOrdersForMonth(currentDate.getMonthValue(), currentDate.getYear());
+        Long previousMonthOrders = getTotalOrdersForMonth(previousMonthDate.getMonthValue(), previousMonthDate.getYear());
+
+        Long currentMonthEarning = getTotalEarningForMonth(currentDate.getMonthValue(), currentDate.getYear());
+        Long previousMonthEarning = getTotalEarningForMonth(previousMonthDate.getMonthValue(), previousMonthDate.getYear());
+
+        Long placed = orderRepository.countByOrderStatus(OrderStatus.Placed);
+        Long shipped = orderRepository.countByOrderStatus(OrderStatus.Shipped);
+        Long delivered = orderRepository.countByOrderStatus(OrderStatus.Delivered);
+
+        return new AnalyticsResponse(placed, shipped, delivered, currentMonthOrders, previousMonthOrders, currentMonthEarning, previousMonthEarning);
+    }
+
+    private Long getTotalEarningForMonth(int monthValue, int year) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, monthValue - 1);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        Date startOfMonth = calendar.getTime();
+        LocalDateTime startOfMonthLocal = startOfMonth.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+
+        Date endOfMonth = calendar.getTime();
+        LocalDateTime endOfMonthLocal = endOfMonth.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+        List<OrderEntity> orders = orderRepository.findByOrderDateBetweenAndOrderStatus(startOfMonthLocal, endOfMonthLocal, OrderStatus.Delivered);
+
+        long sum = 0L;
+
+        for (OrderEntity order : orders) {
+            long totalAmount = order.getOrderItems().stream()
+                    .mapToLong(item -> (long) (item.getQuantity() * item.getPrice())).sum();
+            sum += totalAmount;
+        }
+
+        return sum;
+    }
+
+    private Long getTotalOrdersForMonth(int monthValue, int year) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, monthValue - 1);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        Date startOfMonth = calendar.getTime();
+        LocalDateTime startOfMonthLocal = startOfMonth.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+
+        Date endOfMonth = calendar.getTime();
+        LocalDateTime endOfMonthLocal = endOfMonth.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+        List<OrderEntity> orders = orderRepository.findByOrderDateBetweenAndOrderStatus(startOfMonthLocal, endOfMonthLocal, OrderStatus.Delivered);
+
+        return (long) orders.size();
     }
 
     private void completeOrder(OrderEntity order) {
