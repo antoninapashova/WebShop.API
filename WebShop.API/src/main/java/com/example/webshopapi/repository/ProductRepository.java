@@ -12,6 +12,6 @@ import java.util.UUID;
 public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
     boolean existsByName(String name);
     ProductEntity findProductEntityById(UUID id);
-    @Query(value = "SELECT * FROM products WHERE name = ?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM products WHERE name LIKE %?1%", nativeQuery = true)
     List<ProductEntity> findAllByName(String name);
 }
