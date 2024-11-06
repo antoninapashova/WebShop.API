@@ -45,14 +45,14 @@ public class WebSecurityConfiguration {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/sign-up", "/authenticate", "/get-order/{orderId}")
                         .permitAll()
-                        .requestMatchers("/all-products").hasAnyRole("ADMIN", "CUSTOMER")
+                        .requestMatchers("/all-products", "/search/{name}").hasAnyRole("ADMIN", "CUSTOMER")
                         .requestMatchers("/add-product", "/all-orders",
                                 "/set-order-approved", "/delete-product/{productId}",
                                 "/update-product/{productId}", "/all-categories",
-                                "/add-category/{categoryName}", "/search/{name}",
-                                "/set-order-status/{orderId}/{status}", "/get-order-items/{orderId}",
-                                "/get-product/{productId}", "/delete-image/{productId}/{imageId}",
-                                "/create-coupon", "/all-coupons", "/order/analytics")
+                                "/add-category/{categoryName}", "/set-order-status/{orderId}/{status}",
+                                "/get-order-items/{orderId}", "/get-product/{productId}",
+                                "/delete-image/{productId}/{imageId}", "/create-coupon",
+                                "/all-coupons", "/order/analytics")
                         .hasRole("ADMIN")
                         .requestMatchers("/add-to-cart", "/get-cart",
                                 "/cart/changeItemQuantity", "/cart/setItemQuantity",
