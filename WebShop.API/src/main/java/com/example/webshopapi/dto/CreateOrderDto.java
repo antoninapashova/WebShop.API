@@ -1,4 +1,4 @@
-package com.example.webshopapi.dto.requestObjects;
+package com.example.webshopapi.dto;
 
 import lombok.Data;
 
