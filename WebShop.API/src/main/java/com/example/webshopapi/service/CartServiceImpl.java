@@ -5,7 +5,6 @@ import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CartDto;
 import com.example.webshopapi.dto.CartItemDto;
-import com.example.webshopapi.dto.ImageDto;
 import com.example.webshopapi.dto.requestObjects.ChangeCartItemQuantityRequest;
 import com.example.webshopapi.entity.CartEntity;
 import com.example.webshopapi.entity.CartItemEntity;
@@ -158,7 +157,7 @@ public class CartServiceImpl implements CartService {
         CartItemDto dto = modelMapper.map(entity, CartItemDto.class);
         dto.setPrice(entity.getProduct().getPrice());
         dto.setName(entity.getProduct().getName());
-        dto.setImage(modelMapper.map(entity.getProduct().getImages().getFirst(), ImageDto.class));
+        dto.setImg(entity.getProduct().getImages().getFirst().getImg());
         return dto;
     }
 }
