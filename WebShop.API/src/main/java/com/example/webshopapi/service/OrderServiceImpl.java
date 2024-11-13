@@ -34,13 +34,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public ExecutionResult createOrder(CreateOrderDto dto) {
+    public TypedResult<String> createOrder(CreateOrderDto dto) {
         CartEntity cart = cartRepository.getCartEntityByUserId(dto.getUserId());
-        if (cart == null) return new ExecutionResult(FailureType.NOT_FOUND, "Cart not found!");
+        if (cart == null) return new TypedResult<>(FailureType.NOT_FOUND, "Cart not found!");
 
         UserEntity user = userRepository.findById(dto.getUserId()).orElse(null);
         if (user == null) {
-            return new ExecutionResult(FailureType.NOT_FOUND, "User not found!");
+            return new TypedResult<>(FailureType.NOT_FOUND, "User not found!");
         }
 
         OrderEntity order = new OrderEntity();
@@ -55,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
             CouponEntity coupon = couponRepository.findByCode(dto.getCouponCode()).orElse(null);
 
             if (coupon == null) {
-                return new ExecutionResult(FailureType.NOT_FOUND, "Coupon with code " + dto.getCouponCode() + " not found!");
+                return new TypedResult<>(FailureType.NOT_FOUND, "Coupon with code " + dto.getCouponCode() + " not found!");
             }
 
             order.setCouponEntity(coupon);
@@ -74,7 +74,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         cartRepository.delete(cart);
 
-        return new ExecutionResult("Order send successfully!");
+        return new TypedResult<>(order.getId().toString());
     }
 
     @Override

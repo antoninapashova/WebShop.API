@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface OrderService {
-    ExecutionResult createOrder(CreateOrderDto orderDto);
+    TypedResult<String> createOrder(CreateOrderDto orderDto);
     List<OrderDto> retrieveAllOrders();
     ExecutionResult setOrderStatus(UUID orderId, boolean isApproved);
     ExecutionResult changeOrderStatus(UUID orderId, String status);

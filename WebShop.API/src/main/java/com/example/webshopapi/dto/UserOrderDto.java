@@ -6,6 +6,7 @@ import java.util.List;
 
 @Data
 public class UserOrderDto {
+    public String id;
     public String orderDate;
     public double totalAmount;
     public String address;
