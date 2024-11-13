@@ -43,7 +43,7 @@ public class WebSecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/sign-up", "/authenticate", "/get-order/{orderId}")
+                        .requestMatchers("/sign-up", "/authenticate", "/get-order/{orderId}", "/subscribe/{email}")
                         .permitAll()
                         .requestMatchers("/all-products", "/search/{name}").hasAnyRole("ADMIN", "CUSTOMER")
                         .requestMatchers("/add-product", "/all-orders",
