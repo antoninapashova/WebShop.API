@@ -4,12 +4,17 @@ import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CouponDto;
+import com.example.webshopapi.dto.EmailBodyDto;
 import com.example.webshopapi.dto.requestObjects.CreateCouponRequest;
 import com.example.webshopapi.entity.CouponEntity;
 import com.example.webshopapi.repository.CouponRepository;
+import com.example.webshopapi.repository.SubscriberRepository;
+import com.example.webshopapi.service.email.MailSenderService;
+import jakarta.mail.MessagingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -17,10 +22,14 @@ import java.util.List;
 public class CouponServiceImpl implements CouponService {
     private final CouponRepository couponRepository;
     private final ModelMapper modelMapper;
+    private final MailSenderService mailService;
+    private final SubscriberRepository subscriberRepository;
 
-    public CouponServiceImpl(CouponRepository couponRepository, ModelMapper modelMapper) {
+    public CouponServiceImpl(CouponRepository couponRepository, ModelMapper modelMapper, MailSenderService mailService, SubscriberRepository subscriberRepository) {
         this.couponRepository = couponRepository;
         this.modelMapper = modelMapper;
+        this.mailService = mailService;
+        this.subscriberRepository = subscriberRepository;
     }
 
     @Override
@@ -32,6 +41,14 @@ public class CouponServiceImpl implements CouponService {
 
         CouponEntity coupon = modelMapper.map(request, CouponEntity.class);
         couponRepository.save(coupon);
+
+        subscriberRepository.findAll().forEach(s ->{
+            try {
+                mailService.sendNewMail(s.getEmail(), "New promo code", new EmailBodyDto(coupon.getCode(), coupon.getExpirationDate()));
+            } catch (MessagingException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         return new ExecutionResult("Coupon created successfully!");
     }
