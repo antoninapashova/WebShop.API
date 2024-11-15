@@ -1,20 +1,16 @@
 package com.example.webshopapi.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = false)
 @Entity
 @Data
 @Table(name = "carts")
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CartEntity{
 
     @Id

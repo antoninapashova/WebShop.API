@@ -2,21 +2,16 @@ package com.example.webshopapi.entity;
 
 import com.example.webshopapi.entity.enums.OrderStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = false)
 @Entity
 @Data
 @Table(name = "orders")
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OrderEntity {
 
     @Id

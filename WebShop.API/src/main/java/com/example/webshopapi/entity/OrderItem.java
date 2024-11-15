@@ -5,14 +5,10 @@ import lombok.*;
 
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = false)
 @Entity
 @Data
-@Getter
-@Setter
 @Table(name = "order_items")
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OrderItem{
 
     @Id

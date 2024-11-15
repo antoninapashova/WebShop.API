@@ -2,19 +2,14 @@ package com.example.webshopapi.entity;
 
 import com.example.webshopapi.entity.enums.UserRole;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = false)
 @Entity
 @Data
 @Table(name = "users")
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

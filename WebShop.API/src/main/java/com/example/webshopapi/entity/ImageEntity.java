@@ -1,20 +1,17 @@
 package com.example.webshopapi.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 
 import java.sql.Types;
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = false)
 @Entity
 @Data
 @Table(name = "images")
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class ImageEntity {
 
     @Id
