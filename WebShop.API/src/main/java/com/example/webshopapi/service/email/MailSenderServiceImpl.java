@@ -1,6 +1,8 @@
 package com.example.webshopapi.service.email;
 
 import com.example.webshopapi.dto.EmailBodyDto;
+import com.example.webshopapi.entity.SubscriberEntity;
+import com.example.webshopapi.repository.SubscriberRepository;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
@@ -10,41 +12,46 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.StringJoiner;
 
 @Service
 public class MailSenderServiceImpl implements MailSenderService {
+    private static final String EMAIL = System.getenv("EMAIL");
+
     @Autowired
     private JavaMailSender mailSender;
-
-    public static final String EMAIL = System.getenv("EMAIL");
+    @Autowired
+    private SubscriberRepository repository;
 
     @Override
-    public void sendNewMail(String receiver, String subject, EmailBodyDto body) throws MessagingException, IOException {
-        MimeMessage message = createEmail(receiver, EMAIL, "New promo code", body);
-
-        try{
-            mailSender.send(message);
-        } catch (Exception e) {
-            System.out.println("EXCEPTION " + e);
-        }
+    public void sendNewMail(String subject, EmailBodyDto body) throws MessagingException, IOException {
+        MimeMessage message = createEmail(subject, body);
+        mailSender.send(message);
     }
 
-    private MimeMessage createEmail(String toEmailAddress,
-                                    String fromEmailAddress,
-                                    String subject,
-                                    EmailBodyDto body)
+    private MimeMessage createEmail(
+            String subject,
+            EmailBodyDto body)
             throws MessagingException {
         MimeMessage email = mailSender.createMimeMessage();
-
-        email.setFrom(new InternetAddress(fromEmailAddress));
-
-        email.setRecipients(Message.RecipientType.TO, toEmailAddress);
+        email.setFrom(new InternetAddress(EMAIL));
         email.setSubject(subject);
+
+        String recipients = collectRecipients();
+        email.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipients));
 
         String personalizedEmail = formatEmail(body);
         email.setContent(personalizedEmail, "text/html; charset=utf-8");
 
         return email;
+    }
+
+    private String collectRecipients() {
+        List<SubscriberEntity> recipients = repository.findAll();
+        StringJoiner joiner = new StringJoiner(",");
+        recipients.forEach(r -> joiner.add(r.getEmail()));
+        return joiner.toString();
     }
 
     private String formatEmail(EmailBodyDto body) {

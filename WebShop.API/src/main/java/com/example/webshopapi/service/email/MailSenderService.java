@@ -6,5 +6,5 @@ import jakarta.mail.MessagingException;
 import java.io.IOException;
 
 public interface MailSenderService {
-    void sendNewMail(String receiver, String subject, EmailBodyDto body) throws MessagingException, IOException;
+    void sendNewMail(String subject, EmailBodyDto body) throws MessagingException, IOException;
 }
