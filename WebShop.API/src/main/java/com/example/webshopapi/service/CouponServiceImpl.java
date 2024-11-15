@@ -7,34 +7,27 @@ import com.example.webshopapi.dto.CouponDto;
 import com.example.webshopapi.dto.EmailBodyDto;
 import com.example.webshopapi.dto.requestObjects.CreateCouponRequest;
 import com.example.webshopapi.entity.CouponEntity;
+import com.example.webshopapi.events.SendEmailEvent;
 import com.example.webshopapi.repository.CouponRepository;
-import com.example.webshopapi.repository.SubscriberRepository;
-import com.example.webshopapi.service.email.MailSenderService;
-import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CouponServiceImpl implements CouponService {
     private final CouponRepository couponRepository;
     private final ModelMapper modelMapper;
-    private final MailSenderService mailService;
-    private final SubscriberRepository subscriberRepository;
+    private final ApplicationEventPublisher publisher;
 
-    public CouponServiceImpl(CouponRepository couponRepository, ModelMapper modelMapper, MailSenderService mailService, SubscriberRepository subscriberRepository) {
-        this.couponRepository = couponRepository;
-        this.modelMapper = modelMapper;
-        this.mailService = mailService;
-        this.subscriberRepository = subscriberRepository;
-    }
-
+    @Transactional
     @Override
     public ExecutionResult createCoupon(CreateCouponRequest request) {
-
         if (couponRepository.existsByCode(request.getCode())) {
             return new ExecutionResult(FailureType.UNKNOWN, "Coupon code already exists!");
         }
@@ -42,13 +35,7 @@ public class CouponServiceImpl implements CouponService {
         CouponEntity coupon = modelMapper.map(request, CouponEntity.class);
         couponRepository.save(coupon);
 
-        subscriberRepository.findAll().forEach(s ->{
-            try {
-                mailService.sendNewMail(s.getEmail(), "New promo code", new EmailBodyDto(coupon.getCode(), coupon.getExpirationDate()));
-            } catch (MessagingException | IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        publisher.publishEvent(new SendEmailEvent(this, "New promo code!", new EmailBodyDto(coupon.getCode(), coupon.getExpirationDate())));
 
         return new ExecutionResult("Coupon created successfully!");
     }
