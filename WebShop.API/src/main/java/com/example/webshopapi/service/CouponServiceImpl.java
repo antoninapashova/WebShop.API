@@ -1,12 +1,14 @@
 package com.example.webshopapi.service;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CouponDto;
 import com.example.webshopapi.dto.EmailBodyDto;
 import com.example.webshopapi.dto.requestObjects.CreateCouponRequest;
 import com.example.webshopapi.entity.CouponEntity;
+import com.example.webshopapi.error.exception.CouponExpiredException;
+import com.example.webshopapi.error.exception.CouponNotFoundException;
+import com.example.webshopapi.error.exception.ExistingCouponException;
 import com.example.webshopapi.events.SendEmailEvent;
 import com.example.webshopapi.repository.CouponRepository;
 import jakarta.transaction.Transactional;
@@ -29,7 +31,7 @@ public class CouponServiceImpl implements CouponService {
     @Override
     public ExecutionResult createCoupon(CreateCouponRequest request) {
         if (couponRepository.existsByCode(request.getCode())) {
-            return new ExecutionResult(FailureType.UNKNOWN, "Coupon code already exists!");
+            throw new ExistingCouponException("Coupon code already exists!");
         }
 
         CouponEntity coupon = modelMapper.map(request, CouponEntity.class);
@@ -43,24 +45,17 @@ public class CouponServiceImpl implements CouponService {
     @Override
     public TypedResult<List<CouponDto>> getAllCoupons() {
         List<CouponDto> dtos = couponRepository.findAll().stream().map(this::asDto).toList();
-
-        if (dtos.isEmpty()) {
-            return new TypedResult<>(FailureType.NOT_FOUND, "No coupons found!");
-        }
-
         return new TypedResult<>(dtos);
     }
 
     @Override
     public TypedResult<CouponEntity> getCouponByCode(String code) {
-        CouponEntity coupon = couponRepository.findByCode(code).orElse(null);
+        CouponEntity coupon = couponRepository.findByCode(code)
+                .orElseThrow(() -> new CouponNotFoundException("Coupon with this code not found!"));
 
-        if (coupon == null) {
-            return new TypedResult<>(FailureType.NOT_FOUND, "Discount not found!");
-        }
-
-        if (couponIsExpired(coupon)) {
-            return new TypedResult<>(FailureType.UNKNOWN, "Coupon with code " + code + " has expired!");
+        boolean isExpired = couponIsExpired(coupon);
+        if (isExpired) {
+            throw new CouponExpiredException("Coupon with code " + code + " has expired!");
         }
 
         return new TypedResult<>(coupon);

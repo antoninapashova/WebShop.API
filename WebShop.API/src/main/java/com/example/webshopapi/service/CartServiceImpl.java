@@ -9,6 +9,7 @@ import com.example.webshopapi.dto.requestObjects.ChangeCartItemQuantityRequest;
 import com.example.webshopapi.entity.CartEntity;
 import com.example.webshopapi.entity.CartItemEntity;
 import com.example.webshopapi.entity.ProductEntity;
+import com.example.webshopapi.error.exception.CartItemNotFoundException;
 import com.example.webshopapi.repository.CartItemRepository;
 import com.example.webshopapi.repository.CartRepository;
 import com.example.webshopapi.repository.ProductRepository;
@@ -69,10 +70,6 @@ public class CartServiceImpl implements CartService {
     public ExecutionResult changeItemQuantity(ChangeCartItemQuantityRequest changeCartItemQuantity) {
         TypedResult<CartItemEntity> itemResult = findItemById(changeCartItemQuantity.cartItemId);
 
-        if(!itemResult.isSuccess()){
-           return new ExecutionResult(itemResult.getFailureType(), itemResult.getMessage());
-        }
-
         CartItemEntity item = itemResult.getData();
         ExecutionResult result;
 
@@ -98,7 +95,7 @@ public class CartServiceImpl implements CartService {
     public ExecutionResult deleteItem(UUID itemId) {
         boolean isExists = cartItemRepository.existsById(itemId);
 
-        if(!isExists) {
+        if (!isExists) {
             return new ExecutionResult(FailureType.NOT_FOUND, "Item not found!");
         }
 
@@ -108,7 +105,7 @@ public class CartServiceImpl implements CartService {
 
     private ExecutionResult assignItemToCartAsync(CartEntity cart, UUID productId) {
         ProductEntity productEntity = productRepository.findProductEntityById(productId);
-        if (productEntity == null) return new ExecutionResult(FailureType.NOT_FOUND,"Product does not exist!");
+        if (productEntity == null) return new ExecutionResult(FailureType.NOT_FOUND, "Product does not exist!");
 
         CartItemEntity cartItem = cart.getItems().stream().filter(x -> x.getProduct().getId() == productEntity.getId()).findAny().orElse(null);
         ExecutionResult result;
@@ -145,10 +142,8 @@ public class CartServiceImpl implements CartService {
     }
 
     private TypedResult<CartItemEntity> findItemById(String itemId) {
-        var item = cartItemRepository.findById(UUID.fromString(itemId)).orElse(null);
-        if (item == null) {
-            return new TypedResult<>(FailureType.NOT_FOUND, String.format("Item not found for id " + itemId));
-        }
+        CartItemEntity item = cartItemRepository.findById(UUID.fromString(itemId))
+                .orElseThrow(() -> new CartItemNotFoundException("Cart item not found!"));
 
         return new TypedResult<>(item);
     }
