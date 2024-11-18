@@ -1,7 +1,6 @@
 package com.example.webshopapi.controller;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CategoryDto;
 import com.example.webshopapi.service.CategoryService;
@@ -22,11 +21,6 @@ public class CategoryController {
     @GetMapping("/all-categories")
     public ResponseEntity<?> getAllCategories() {
         TypedResult<List<CategoryDto>> result = categoryService.retrieveAllCategories();
-
-        if (result.getFailureType() == FailureType.UNKNOWN) {
-            return ResponseEntity.status(HttpStatus.OK).body(result);
-        }
-
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -37,9 +31,8 @@ public class CategoryController {
     }
 
     @DeleteMapping("/delete-category/{categoryId}")
-    public ResponseEntity<?> deleteCategory(@PathVariable String categoryId){
-        ExecutionResult result  = categoryService.deleteCategory(categoryId);
-
+    public ResponseEntity<?> deleteCategory(@PathVariable String categoryId) {
+        ExecutionResult result = categoryService.deleteCategory(categoryId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

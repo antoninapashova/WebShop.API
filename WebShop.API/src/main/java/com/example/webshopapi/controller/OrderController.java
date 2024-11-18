@@ -9,6 +9,7 @@ import com.example.webshopapi.entity.UserPrinciple;
 import com.example.webshopapi.service.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class OrderController {
     }
 
     @PostMapping("/create-order")
-    public ResponseEntity<?> createOrder(@AuthenticationPrincipal UserPrinciple principle, @ModelAttribute CreateOrderDto order) {
+    public ResponseEntity<?> createOrder(@AuthenticationPrincipal UserPrinciple principle, @NonNull @ModelAttribute CreateOrderDto order) {
         order.setUserId(principle.getUserId());
         ExecutionResult result = orderService.createOrder(order);
 
@@ -43,8 +44,6 @@ public class OrderController {
 
     @PutMapping("/set-order-approved")
     public ResponseEntity<?> setOrderApproved(@RequestBody SetOrderStatusRequest request) {
-        if (request == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
         ExecutionResult result = orderService.setOrderStatus(UUID.fromString(request.orderId), request.isApproved);
         if (result.getFailureType() == FailureType.NOT_FOUND) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
@@ -55,8 +54,6 @@ public class OrderController {
 
     @PutMapping("/set-order-status/{orderId}/{status}")
     public ResponseEntity<?> setOrderStatus(@PathVariable String orderId, @PathVariable String status) {
-        if (orderId == null || status == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
         ExecutionResult result = orderService.changeOrderStatus(UUID.fromString(orderId), status);
         if (result.getFailureType() == FailureType.NOT_FOUND) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
@@ -67,16 +64,12 @@ public class OrderController {
 
     @GetMapping("/get-order-items/{orderId}")
     public ResponseEntity<?> getOrderItems(@PathVariable String orderId) {
-        if (orderId == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
         TypedResult<List<OrderItemDto>> result = orderService.getOrderItems(UUID.fromString(orderId));
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @GetMapping("/get-order/{orderId}")
     public ResponseEntity<?> getOrderById(@PathVariable String orderId){
-        if (orderId == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
         TypedResult<OrderDto> result = orderService.getOrderById(UUID.fromString(orderId));
 
         if (result.getFailureType() == FailureType.NOT_FOUND) {

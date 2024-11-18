@@ -12,6 +12,7 @@ import com.example.webshopapi.entity.ImageEntity;
 import com.example.webshopapi.entity.ProductEntity;
 import com.example.webshopapi.repository.CategoryRepository;
 import com.example.webshopapi.repository.ProductRepository;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -21,16 +22,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
-
-    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, ModelMapper modelMapper) {
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
-        this.modelMapper = modelMapper;
-    }
 
     @Override
     public ExecutionResult addProduct(CreateProductRequest createProductRequest) throws Exception {

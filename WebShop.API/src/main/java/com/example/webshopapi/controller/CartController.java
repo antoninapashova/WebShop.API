@@ -24,9 +24,8 @@ public class CartController {
 
     @PostMapping("/add-to-cart/{productId}")
     public ResponseEntity<?> addProductToCart(@PathVariable String productId, @AuthenticationPrincipal UserPrinciple user) throws Exception {
-        if (productId == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
         ExecutionResult result = cartService.addProductToCart(UUID.fromString(productId), user.getUserId());
+
         if (result.getFailureType() == FailureType.NOT_FOUND) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result.getMessage());
         }
@@ -47,8 +46,6 @@ public class CartController {
 
     @PutMapping("/cart/changeItemQuantity")
     public ResponseEntity<?> changeItemQuantity(@RequestBody ChangeCartItemQuantityRequest changeQuantity) {
-        if (changeQuantity == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
         ExecutionResult result = cartService.changeItemQuantity(changeQuantity);
 
         if (result.getFailureType() == FailureType.NOT_FOUND) {
@@ -60,16 +57,12 @@ public class CartController {
 
     @PutMapping("/cart/setItemQuantity")
     public ResponseEntity<?> setCartItemQuantity(@RequestBody SetCartItemQuantityRequest setQuantity) {
-        if (setQuantity == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
         cartService.setCartItemQuantity(setQuantity.cartItemId, setQuantity.quantity);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @DeleteMapping("/delete/{itemId}")
     public ResponseEntity<?> deleteItem(@PathVariable String itemId) {
-        if (itemId == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
         ExecutionResult result = cartService.deleteItem(UUID.fromString(itemId));
 
         if (result.getFailureType() == FailureType.NOT_FOUND) {

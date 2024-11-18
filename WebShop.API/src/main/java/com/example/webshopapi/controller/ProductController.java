@@ -21,10 +21,6 @@ public class ProductController {
 
     @PostMapping("add-product")
     public ResponseEntity<?> addProduct(@ModelAttribute CreateProductRequest createProductRequest) throws Exception {
-        if(createProductRequest == null ){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Request body not found!");
-        }
-
         ExecutionResult result = productService.addProduct(createProductRequest);
 
         if (result.getFailureType() == FailureType.UNKNOWN) {
@@ -48,11 +44,7 @@ public class ProductController {
 
     @DeleteMapping("/delete-product/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable String productId) {
-        if (productId == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-
-        var result = productService.deleteProduct(productId);
+        ExecutionResult result = productService.deleteProduct(productId);
 
         if (result.getFailureType() == FailureType.NOT_FOUND) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
@@ -63,10 +55,6 @@ public class ProductController {
 
     @PutMapping("/update-product/{productId}")
     public ResponseEntity<?> updateProduct(@PathVariable String productId, @ModelAttribute UpdateProductRequest product) {
-        if (productId == null || product == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Some property not provided!");
-        }
-
         ExecutionResult result = productService.updateProduct(productId, product);
 
         if (result.getFailureType() == FailureType.NOT_FOUND) {
@@ -78,10 +66,6 @@ public class ProductController {
 
     @GetMapping("/get-product/{productId}")
     public ResponseEntity<?> getProductById(@PathVariable String productId) {
-        if (productId == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ProductId is not provided");
-        }
-
         TypedResult<ProductDto> result = productService.getProductById(productId);
 
         if (result.getFailureType() == FailureType.NOT_FOUND) {

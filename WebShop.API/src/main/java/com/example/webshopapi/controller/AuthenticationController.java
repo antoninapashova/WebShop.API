@@ -52,8 +52,6 @@ public class AuthenticationController {
 
     @PostMapping("sign-up")
     public ResponseEntity<?> signUp(@RequestBody SignupRequest signupRequest) {
-        if (signupRequest == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No data provided");
-
         ExecutionResult result = authService.createUser(signupRequest);
 
         if(result.getFailureType() == FailureType.UNKNOWN){
