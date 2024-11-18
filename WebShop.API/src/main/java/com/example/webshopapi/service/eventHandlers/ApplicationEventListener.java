@@ -12,7 +12,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import java.io.IOException;
 
 @Component
-public class MailSenderServiceHandler {
+public class ApplicationEventListener {
     @Autowired
     private MailSenderService mailSenderService;
 
