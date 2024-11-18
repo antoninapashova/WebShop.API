@@ -1,8 +1,6 @@
 package com.example.webshopapi.controller;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.FailureType;
-import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.AuthenticationResponse;
 import com.example.webshopapi.dto.requestObjects.AuthenticationRequest;
 import com.example.webshopapi.dto.requestObjects.SignupRequest;
@@ -38,11 +36,11 @@ public class AuthenticationController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
 
         String token = jwtUtil.generateToken(userDetails.getUsername());
-        TypedResult<String> result = authService.loadUserRole(userDetails.getUsername());
+        String result = authService.loadUserRole(userDetails.getUsername());
 
         AuthenticationResponse response = new AuthenticationResponse();
         response.setToken(token);
-        response.setRole(result.getData());
+        response.setRole(result);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -50,11 +48,6 @@ public class AuthenticationController {
     @PostMapping("sign-up")
     public ResponseEntity<?> signUp(@RequestBody SignupRequest signupRequest) {
         ExecutionResult result = authService.createUser(signupRequest);
-
-        if(result.getFailureType() == FailureType.UNKNOWN){
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(result);
-        }
-
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

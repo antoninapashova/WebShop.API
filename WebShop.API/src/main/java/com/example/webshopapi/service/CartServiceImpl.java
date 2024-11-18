@@ -1,7 +1,6 @@
 package com.example.webshopapi.service;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CartDto;
 import com.example.webshopapi.dto.CartItemDto;
 import com.example.webshopapi.dto.requestObjects.ChangeCartItemQuantityRequest;
@@ -57,8 +56,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void setCartItemQuantity(String cartItemId, int quantity) {
-        TypedResult<CartItemEntity> result = findItemById(cartItemId);
-        CartItemEntity item = result.getData();
+        CartItemEntity item = findItemById(cartItemId);
 
         if (quantity <= 0) {
             cartItemRepository.delete(item);
@@ -70,9 +68,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public ExecutionResult changeItemQuantity(ChangeCartItemQuantityRequest changeCartItemQuantity) {
-        TypedResult<CartItemEntity> itemResult = findItemById(changeCartItemQuantity.cartItemId);
+        CartItemEntity item = findItemById(changeCartItemQuantity.cartItemId);
 
-        CartItemEntity item = itemResult.getData();
         ExecutionResult result;
 
         if (changeCartItemQuantity.isIncreaseChange) {
@@ -145,11 +142,9 @@ public class CartServiceImpl implements CartService {
         return cartRepository.findByUserId(userId);
     }
 
-    private TypedResult<CartItemEntity> findItemById(String itemId) {
-        CartItemEntity item = cartItemRepository.findById(UUID.fromString(itemId))
+    private CartItemEntity findItemById(String itemId) {
+        return cartItemRepository.findById(UUID.fromString(itemId))
                 .orElseThrow(() -> new CartItemNotFoundException("Cart item not found!"));
-
-        return new TypedResult<>(item);
     }
 
     private CartItemDto asCartItemDto(CartItemEntity entity) {

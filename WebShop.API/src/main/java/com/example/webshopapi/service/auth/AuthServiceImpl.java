@@ -1,7 +1,6 @@
 package com.example.webshopapi.service.auth;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.requestObjects.SignupRequest;
 import com.example.webshopapi.entity.UserEntity;
 import com.example.webshopapi.entity.enums.UserRole;
@@ -70,9 +69,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public TypedResult<String> loadUserRole(String username) {
-        UserEntity user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
-        return new TypedResult<>(user.getRole().name());
+    public String loadUserRole(String username) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        return user.getRole().name();
     }
 
     private boolean hasUserWithEmail(String email) {

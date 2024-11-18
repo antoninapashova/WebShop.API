@@ -1,7 +1,6 @@
 package com.example.webshopapi.service;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CartDto;
 import com.example.webshopapi.dto.requestObjects.ChangeCartItemQuantityRequest;
 

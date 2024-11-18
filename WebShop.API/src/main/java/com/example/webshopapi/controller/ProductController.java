@@ -1,7 +1,6 @@
 package com.example.webshopapi.controller;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.dto.ProductDto;
 import com.example.webshopapi.dto.requestObjects.CreateProductRequest;
 import com.example.webshopapi.dto.requestObjects.UpdateProductRequest;
@@ -45,11 +44,6 @@ public class ProductController {
     @PutMapping("/update-product/{productId}")
     public ResponseEntity<?> updateProduct(@PathVariable String productId, @ModelAttribute UpdateProductRequest product) {
         ExecutionResult result = productService.updateProduct(productId, product);
-
-        if (result.getFailureType() == FailureType.NOT_FOUND) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
-        }
-
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 

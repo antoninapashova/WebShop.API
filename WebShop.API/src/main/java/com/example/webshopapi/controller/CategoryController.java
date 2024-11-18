@@ -1,7 +1,6 @@
 package com.example.webshopapi.controller;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CategoryDto;
 import com.example.webshopapi.service.CategoryService;
 import lombok.AllArgsConstructor;

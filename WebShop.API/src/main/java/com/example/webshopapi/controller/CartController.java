@@ -1,7 +1,6 @@
 package com.example.webshopapi.controller;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CartDto;
 import com.example.webshopapi.dto.requestObjects.ChangeCartItemQuantityRequest;
 import com.example.webshopapi.dto.requestObjects.SetCartItemQuantityRequest;
@@ -18,7 +17,6 @@ import java.util.UUID;
 @RestController
 @AllArgsConstructor
 public class CartController {
-
     private final CartService cartService;
 
     @PostMapping("/add-to-cart/{productId}")

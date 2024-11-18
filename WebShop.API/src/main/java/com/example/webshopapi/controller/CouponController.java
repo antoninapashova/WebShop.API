@@ -1,7 +1,6 @@
 package com.example.webshopapi.controller;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CouponDto;
 import com.example.webshopapi.dto.requestObjects.CreateCouponRequest;
 import com.example.webshopapi.entity.CouponEntity;
@@ -25,14 +24,14 @@ public class CouponController {
     }
 
     @GetMapping("/all-coupons")
-    public ResponseEntity<ExecutionResult> getAllCoupons() {
-        TypedResult<List<CouponDto>> result = couponService.getAllCoupons();
+    public ResponseEntity<List<CouponDto>> getAllCoupons() {
+        List<CouponDto> result = couponService.getAllCoupons();
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @GetMapping("/coupon/{code}")
-    public ResponseEntity<ExecutionResult> getCouponByCode(@PathVariable String code) {
-        TypedResult<CouponEntity> result = couponService.getCouponByCode(code);
+    public ResponseEntity<CouponEntity> getCouponByCode(@PathVariable String code) {
+        CouponEntity result = couponService.getCouponByCode(code);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

@@ -1,7 +1,6 @@
 package com.example.webshopapi.service;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CouponDto;
 import com.example.webshopapi.dto.EmailBodyDto;
 import com.example.webshopapi.dto.requestObjects.CreateCouponRequest;
@@ -43,13 +42,12 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public TypedResult<List<CouponDto>> getAllCoupons() {
-        List<CouponDto> dtos = couponRepository.findAll().stream().map(this::asDto).toList();
-        return new TypedResult<>(dtos);
+    public List<CouponDto> getAllCoupons() {
+        return couponRepository.findAll().stream().map(this::asDto).toList();
     }
 
     @Override
-    public TypedResult<CouponEntity> getCouponByCode(String code) {
+    public CouponEntity getCouponByCode(String code) {
         CouponEntity coupon = couponRepository.findByCode(code)
                 .orElseThrow(() -> new CouponNotFoundException("Coupon with this code not found!"));
 
@@ -58,7 +56,7 @@ public class CouponServiceImpl implements CouponService {
             throw new CouponExpiredException("Coupon with code " + code + " has expired!");
         }
 
-        return new TypedResult<>(coupon);
+        return coupon;
     }
 
     private boolean couponIsExpired(CouponEntity coupon) {
