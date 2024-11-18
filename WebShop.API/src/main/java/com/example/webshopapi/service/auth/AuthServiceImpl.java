@@ -1,11 +1,12 @@
 package com.example.webshopapi.service.auth;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.requestObjects.SignupRequest;
 import com.example.webshopapi.entity.UserEntity;
 import com.example.webshopapi.entity.enums.UserRole;
+import com.example.webshopapi.error.exception.InvalidUserException;
+import com.example.webshopapi.error.exception.UserNotFoundException;
 import com.example.webshopapi.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -25,15 +26,15 @@ public class AuthServiceImpl implements AuthService {
     private PasswordEncoder passwordEncoder;
 
     public ExecutionResult createUser(SignupRequest signupRequest) {
-         boolean isEmailMatch = hasUserWithEmail(signupRequest.getEmail());
-         if(isEmailMatch){
-             return new ExecutionResult(FailureType.UNKNOWN, "User with this email already exists!");
-         }
+        boolean isEmailMatch = hasUserWithEmail(signupRequest.getEmail());
+        if (isEmailMatch) {
+            throw new InvalidUserException("User with this email already exists!");
+        }
 
-         boolean isUsernameMatch = hasUserWithUsername(signupRequest.getUsername());
-         if (isUsernameMatch) {
-            return new ExecutionResult(FailureType.UNKNOWN,"User with this username already exists!");
-         }
+        boolean isUsernameMatch = hasUserWithUsername(signupRequest.getUsername());
+        if (isUsernameMatch) {
+            throw new InvalidUserException("User with this username already exists!");
+        }
 
         UserEntity userEntity = modelMapper.map(signupRequest, UserEntity.class);
         userEntity.setPassword(new BCryptPasswordEncoder().encode(signupRequest.getPassword()));
@@ -70,11 +71,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TypedResult<String> loadUserRole(String username) {
-        UserEntity user = userRepository.findByUsername(username).orElse(null);
-        if (user == null) {
-            return new TypedResult<>(FailureType.NOT_FOUND, "User not found");
-        }
-
+        UserEntity user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
         return new TypedResult<>(user.getRole().name());
     }
 

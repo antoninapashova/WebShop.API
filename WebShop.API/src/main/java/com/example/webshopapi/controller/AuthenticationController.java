@@ -39,9 +39,6 @@ public class AuthenticationController {
 
         String token = jwtUtil.generateToken(userDetails.getUsername());
         TypedResult<String> result = authService.loadUserRole(userDetails.getUsername());
-        if(result.getFailureType() == FailureType.NOT_FOUND) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessage());
-        }
 
         AuthenticationResponse response = new AuthenticationResponse();
         response.setToken(token);
