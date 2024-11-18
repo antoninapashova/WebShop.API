@@ -2,11 +2,13 @@ package com.example.webshopapi.service;
 
 import com.example.webshopapi.config.DateTimeExtension;
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.FailureType;
-import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.*;
 import com.example.webshopapi.entity.*;
 import com.example.webshopapi.entity.enums.OrderStatus;
+import com.example.webshopapi.error.exception.CartNotFoundException;
+import com.example.webshopapi.error.exception.CouponNotFoundException;
+import com.example.webshopapi.error.exception.OrderNotFoundException;
+import com.example.webshopapi.error.exception.UserNotFoundException;
 import com.example.webshopapi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -34,14 +36,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public TypedResult<String> createOrder(CreateOrderDto dto) {
+    public String createOrder(CreateOrderDto dto) {
         CartEntity cart = cartRepository.getCartEntityByUserId(dto.getUserId());
-        if (cart == null) return new TypedResult<>(FailureType.NOT_FOUND, "Cart not found!");
+        if (cart == null) throw new CartNotFoundException("Tou don't have assigned cart!");
 
-        UserEntity user = userRepository.findById(dto.getUserId()).orElse(null);
-        if (user == null) {
-            return new TypedResult<>(FailureType.NOT_FOUND, "User not found!");
-        }
+        UserEntity user = userRepository.findById(dto.getUserId()).orElseThrow(() -> new UserNotFoundException("User not found!"));
 
         OrderEntity order = new OrderEntity();
         order.setUser(user);
@@ -52,11 +51,8 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderDescription(dto.getDescription());
 
         if (dto.getCouponCode() != null) {
-            CouponEntity coupon = couponRepository.findByCode(dto.getCouponCode()).orElse(null);
-
-            if (coupon == null) {
-                return new TypedResult<>(FailureType.NOT_FOUND, "Coupon with code " + dto.getCouponCode() + " not found!");
-            }
+            CouponEntity coupon = couponRepository.findByCode(dto.getCouponCode())
+                    .orElseThrow(() -> new CouponNotFoundException("Coupon with code " + dto.getCouponCode() + " not found!"));
 
             order.setCouponEntity(coupon);
         }
@@ -74,7 +70,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         cartRepository.delete(cart);
 
-        return new TypedResult<>(order.getId().toString());
+        return order.getId().toString();
     }
 
     @Override
@@ -96,8 +92,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ExecutionResult setOrderStatus(UUID orderId, boolean isApproved) {
-        OrderEntity order = orderRepository.findById(orderId).orElse(null);
-        if (order == null) return new ExecutionResult(FailureType.NOT_FOUND, "Order not found");
+        OrderEntity order = findOrderById(orderId);
 
         if (isApproved) {
             completeOrder(order);
@@ -113,13 +108,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ExecutionResult changeOrderStatus(UUID orderId, String status) {
-        Optional<OrderEntity> optionalOrder = orderRepository.findById(orderId);
+        OrderEntity order = findOrderById(orderId);
 
-        if (optionalOrder.isEmpty()) {
-            return new TypedResult<>(FailureType.NOT_FOUND, "Order not found!");
-        }
-
-        OrderEntity order = optionalOrder.get();
         if (Objects.equals(status, "Shipped")) {
             order.setOrderStatus(OrderStatus.Shipped);
         } else if (Objects.equals(status, "Delivered")) {
@@ -131,26 +121,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public TypedResult<List<OrderItemDto>> getOrderItems(UUID orderId) {
+    public List<OrderItemDto> getOrderItems(UUID orderId) {
         List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(orderId);
-        if (orderItems.isEmpty()) {
-            return new TypedResult<>(FailureType.NOT_FOUND, "No order items found for this order");
-        }
-
-        List<OrderItemDto> items = orderItems.stream().map(this::asOrderItemDto).toList();
-
-        return new TypedResult<>(items);
+        return orderItems.stream().map(this::asOrderItemDto).toList();
     }
 
     @Override
-    public TypedResult<OrderDto> getOrderById(UUID orderId) {
-        OrderEntity entity = this.orderRepository.findById(orderId).orElse(null);
-
-        if (entity == null) {
-            return new TypedResult<>(FailureType.NOT_FOUND, "Order not found!");
-        }
-
-        return new TypedResult<>(asDto(entity));
+    public OrderDto getOrderById(UUID orderId) {
+        OrderEntity order = findOrderById(orderId);
+        return asDto(order);
     }
 
     @Override
@@ -158,7 +137,8 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAllByUserId(userId).stream()
                 .map(order -> {
                     UserOrderDto userOrderDto = modelMapper.map(order, UserOrderDto.class);
-                    List<UserOrderItemDto> items = order.getOrderItems().stream().map(this::asUserOrderItemDto).toList();
+                    List<UserOrderItemDto> items = order.getOrderItems()
+                            .stream().map(this::asUserOrderItemDto).toList();
                     userOrderDto.setItems(items);
                     userOrderDto.setOrderDate(order.getOrderDate().format(CUSTOM_FORMATTER));
 
@@ -283,6 +263,11 @@ public class OrderServiceImpl implements OrderService {
         quanity -= orderItem.getQuantity();
         product.setQuantity(quanity);
         productRepository.save(product);
+    }
+
+    private OrderEntity findOrderById(UUID id){
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
     }
 
     private OrderDto asDto(OrderEntity orderEntity) {
