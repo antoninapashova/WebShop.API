@@ -1,12 +1,12 @@
 package com.example.webshopapi.controller;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CouponDto;
 import com.example.webshopapi.dto.requestObjects.CreateCouponRequest;
 import com.example.webshopapi.entity.CouponEntity;
 import com.example.webshopapi.service.CouponService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 public class CouponController {
-
     private final CouponService couponService;
-
-    public CouponController(CouponService couponService) {
-        this.couponService = couponService;
-    }
 
     @PostMapping("/create-coupon")
     public ResponseEntity<ExecutionResult> createCoupon(@RequestBody CreateCouponRequest request) throws IllegalArgumentException {

@@ -29,7 +29,7 @@ public class ProductServiceImpl implements ProductService {
     private final ModelMapper modelMapper;
 
     @Override
-    public ExecutionResult addProduct(CreateProductRequest createProductRequest) throws Exception {
+    public ExecutionResult addProduct(CreateProductRequest createProductRequest) {
         boolean isExists = isProductExist(createProductRequest.name);
 
         if (isExists) {

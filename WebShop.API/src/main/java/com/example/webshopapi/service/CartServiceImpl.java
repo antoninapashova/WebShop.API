@@ -24,7 +24,6 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class CartServiceImpl implements CartService {
-
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
     private final CartItemRepository cartItemRepository;
@@ -32,7 +31,7 @@ public class CartServiceImpl implements CartService {
     private final ModelMapper modelMapper;
 
     @Override
-    public ExecutionResult addProductToCart(UUID productId, UUID userId) throws Exception {
+    public ExecutionResult addProductToCart(UUID productId, UUID userId) {
         CartEntity cart = ensureUserHasCart(userId);
         if (cart == null) return new ExecutionResult(FailureType.NOT_FOUND, "No cart found");
 

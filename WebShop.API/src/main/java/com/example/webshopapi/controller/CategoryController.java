@@ -4,6 +4,7 @@ import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CategoryDto;
 import com.example.webshopapi.service.CategoryService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,12 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
-
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
 
     @GetMapping("/all-categories")
     public ResponseEntity<?> getAllCategories() {
