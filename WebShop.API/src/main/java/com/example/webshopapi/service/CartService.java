@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface CartService {
     ExecutionResult addProductToCart(UUID productId, UUID userId) throws Exception;
-    TypedResult<CartDto> getCartByUserId(UUID userId);
+    CartDto getCartByUserId(UUID userId);
     void setCartItemQuantity(String cartItemId, int quantity);
     ExecutionResult changeItemQuantity(ChangeCartItemQuantityRequest increaseQuantity);
     ExecutionResult deleteItem(UUID itemId);

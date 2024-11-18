@@ -1,7 +1,6 @@
 package com.example.webshopapi.service;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.FailureType;
 import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CartDto;
 import com.example.webshopapi.dto.CartItemDto;
@@ -9,7 +8,10 @@ import com.example.webshopapi.dto.requestObjects.ChangeCartItemQuantityRequest;
 import com.example.webshopapi.entity.CartEntity;
 import com.example.webshopapi.entity.CartItemEntity;
 import com.example.webshopapi.entity.ProductEntity;
+import com.example.webshopapi.entity.UserEntity;
 import com.example.webshopapi.error.exception.CartItemNotFoundException;
+import com.example.webshopapi.error.exception.CartNotFoundException;
+import com.example.webshopapi.error.exception.ProductNotFoundException;
 import com.example.webshopapi.repository.CartItemRepository;
 import com.example.webshopapi.repository.CartRepository;
 import com.example.webshopapi.repository.ProductRepository;
@@ -33,23 +35,24 @@ public class CartServiceImpl implements CartService {
     @Override
     public ExecutionResult addProductToCart(UUID productId, UUID userId) {
         CartEntity cart = ensureUserHasCart(userId);
-        if (cart == null) return new ExecutionResult(FailureType.NOT_FOUND, "No cart found");
+        if (cart == null) throw new CartNotFoundException("Cart not found!");
 
         return assignItemToCartAsync(cart, productId);
     }
 
     @Override
-    public TypedResult<CartDto> getCartByUserId(UUID userId) {
+    public CartDto getCartByUserId(UUID userId) {
         CartEntity cart = cartRepository.findByUserId(userId);
 
         if (cart == null) {
-            return new TypedResult<>(FailureType.NOT_FOUND, "User has no assigned cart!");
+            throw new CartNotFoundException("User has no assigned cart!");
         }
 
-        var cartEntityDto = modelMapper.map(cart, CartDto.class);
+        CartDto cartEntityDto = modelMapper.map(cart, CartDto.class);
         cartEntityDto.setTotalPrice(cart.getItems().stream().mapToDouble(i -> i.getProduct().getPrice() * i.getQuantity()).sum());
         cartEntityDto.setCartItems(cart.getItems().stream().map(this::asCartItemDto).toList());
-        return new TypedResult<>(cartEntityDto);
+
+        return cartEntityDto;
     }
 
     @Override
@@ -92,21 +95,23 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public ExecutionResult deleteItem(UUID itemId) {
-        boolean isExists = cartItemRepository.existsById(itemId);
-
-        if (!isExists) {
-            return new ExecutionResult(FailureType.NOT_FOUND, "Item not found!");
-        }
+        cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new CartItemNotFoundException("Item not found!"));
 
         cartItemRepository.deleteById(itemId);
+
         return new ExecutionResult("Item removed successfully!");
     }
 
     private ExecutionResult assignItemToCartAsync(CartEntity cart, UUID productId) {
-        ProductEntity productEntity = productRepository.findProductEntityById(productId);
-        if (productEntity == null) return new ExecutionResult(FailureType.NOT_FOUND, "Product does not exist!");
+        ProductEntity productEntity = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product does not exist!"));
 
-        CartItemEntity cartItem = cart.getItems().stream().filter(x -> x.getProduct().getId() == productEntity.getId()).findAny().orElse(null);
+        CartItemEntity cartItem = cart.getItems().stream()
+                .filter(x -> x.getProduct().getId() == productEntity.getId())
+                .findFirst()
+                .orElse(null);
+
         ExecutionResult result;
 
         if (cartItem == null) {
@@ -131,7 +136,7 @@ public class CartServiceImpl implements CartService {
     }
 
     private CartEntity createUserCart(UUID userId) {
-        var user = userRepository.getUserEntityById(userId);
+        UserEntity user = userRepository.getUserEntityById(userId);
         CartEntity cart = new CartEntity(user, new ArrayList<>());
         return cartRepository.save(cart);
     }
