@@ -16,13 +16,13 @@ public class SubscriberController {
     private final SubscriberService subscriberService;
 
     @PostMapping("/subscribe/{email}")
-    public ResponseEntity<?> subscribe(@PathVariable String email){
-       ExecutionResult result = subscriberService.subscribe(email);
+    public ResponseEntity<?> subscribe(@PathVariable String email) {
+        ExecutionResult result = subscriberService.subscribe(email);
 
-       if(result.getFailureType() == FailureType.UNKNOWN){
-           return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
-       }
+        if (result.getFailureType() == FailureType.UNKNOWN) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
+        }
 
-       return ResponseEntity.status(HttpStatus.OK).body(result);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }
