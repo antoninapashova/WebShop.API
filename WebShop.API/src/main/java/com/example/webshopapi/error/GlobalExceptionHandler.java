@@ -71,4 +71,10 @@ public class GlobalExceptionHandler {
         ExecutionResult errorDetails = new ExecutionResult(new Date(), ex.getMessage(), request.getDescription(false));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
     }
+
+    @ExceptionHandler(InvalidSubscriptionException.class)
+    public ResponseEntity<ExecutionResult> handleInvalidSubscriptionException(InvalidSubscriptionException ex, WebRequest request) {
+        ExecutionResult errorDetails = new ExecutionResult(new Date(), ex.getMessage(), request.getDescription(false));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
+    }
 }
