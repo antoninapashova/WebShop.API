@@ -1,10 +1,9 @@
 package com.example.webshopapi.service;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.FailureType;
-import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.CategoryDto;
 import com.example.webshopapi.entity.CategoryEntity;
+import com.example.webshopapi.error.exception.CategoryNotFoundException;
 import com.example.webshopapi.repository.CategoryRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -36,30 +35,22 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public TypedResult<List<CategoryDto>> retrieveAllCategories() {
-        List<CategoryDto> categories = categoryRepository.findAll().stream().map(this::asDto).toList();
-        if (categories.isEmpty()) {
-            new TypedResult<>(FailureType.UNKNOWN, "No categories provided!");
-        }
-
-        return new TypedResult<>(categories);
+    public List<CategoryDto> retrieveAllCategories() {
+        return categoryRepository.findAll().stream().map(this::asDto).toList();
     }
 
     @Override
-    public TypedResult<CategoryDto> createNewCategory(String categoryName) {
+    public CategoryDto createNewCategory(String categoryName) {
         CategoryEntity entity = new CategoryEntity();
         entity.setName(categoryName);
-        CategoryEntity newCategory = categoryRepository.save(entity);
-
-        return new TypedResult<>(asDto(newCategory));
+        categoryRepository.save(entity);
+        return asDto(entity);
     }
 
     @Override
     public ExecutionResult deleteCategory(String categoryId) {
-        boolean isExists = categoryRepository.existsById(UUID.fromString(categoryId));
-        if (!isExists) {
-            return new ExecutionResult(FailureType.NOT_FOUND, "Category not found!");
-        }
+        categoryRepository.findById(UUID.fromString(categoryId))
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found!"));
 
         categoryRepository.deleteById(UUID.fromString(categoryId));
         return new ExecutionResult("Category removed successfully!");
