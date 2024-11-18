@@ -2,7 +2,6 @@ package com.example.webshopapi.controller;
 
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.config.result.FailureType;
-import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.ProductDto;
 import com.example.webshopapi.dto.requestObjects.CreateProductRequest;
 import com.example.webshopapi.dto.requestObjects.UpdateProductRequest;
@@ -22,11 +21,6 @@ public class ProductController {
     @PostMapping("add-product")
     public ResponseEntity<?> addProduct(@ModelAttribute CreateProductRequest createProductRequest) throws Exception {
         ExecutionResult result = productService.addProduct(createProductRequest);
-
-        if (result.getFailureType() == FailureType.UNKNOWN) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
-        }
-
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
@@ -45,11 +39,6 @@ public class ProductController {
     @DeleteMapping("/delete-product/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable String productId) {
         ExecutionResult result = productService.deleteProduct(productId);
-
-        if (result.getFailureType() == FailureType.NOT_FOUND) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
-        }
-
         return ResponseEntity.status(HttpStatus.OK).body(result.getMessage());
     }
 
@@ -66,12 +55,7 @@ public class ProductController {
 
     @GetMapping("/get-product/{productId}")
     public ResponseEntity<?> getProductById(@PathVariable String productId) {
-        TypedResult<ProductDto> result = productService.getProductById(productId);
-
-        if (result.getFailureType() == FailureType.NOT_FOUND) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(result.getData());
+        ProductDto result = productService.getProductById(productId);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

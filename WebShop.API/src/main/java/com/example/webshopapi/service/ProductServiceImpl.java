@@ -1,8 +1,6 @@
 package com.example.webshopapi.service;
 
 import com.example.webshopapi.config.result.ExecutionResult;
-import com.example.webshopapi.config.result.FailureType;
-import com.example.webshopapi.config.result.TypedResult;
 import com.example.webshopapi.dto.ImageDto;
 import com.example.webshopapi.dto.ProductDto;
 import com.example.webshopapi.dto.requestObjects.CreateProductRequest;
@@ -10,6 +8,9 @@ import com.example.webshopapi.dto.requestObjects.UpdateProductRequest;
 import com.example.webshopapi.entity.CategoryEntity;
 import com.example.webshopapi.entity.ImageEntity;
 import com.example.webshopapi.entity.ProductEntity;
+import com.example.webshopapi.error.exception.CategoryNotFoundException;
+import com.example.webshopapi.error.exception.InvalidProductException;
+import com.example.webshopapi.error.exception.ProductNotFoundException;
 import com.example.webshopapi.repository.CategoryRepository;
 import com.example.webshopapi.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +34,13 @@ public class ProductServiceImpl implements ProductService {
         boolean isExists = isProductExist(createProductRequest.name);
 
         if (isExists) {
-            return new ExecutionResult(FailureType.UNKNOWN, String.format("Product with name %s already exists", createProductRequest.name));
+            throw new InvalidProductException(String.format("Product with name %s already exists", createProductRequest.name));
         }
 
         ProductEntity product = modelMapper.map(createProductRequest, ProductEntity.class);
 
-        CategoryEntity category = categoryRepository.findById(UUID.fromString(createProductRequest.getCategoryId())).orElse(null);
+        CategoryEntity category = categoryRepository.findById(UUID.fromString(createProductRequest.getCategoryId()))
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
         product.setCategory(category);
 
         List<ImageEntity> images = Arrays.stream(createProductRequest.getImages()).map(img -> {
@@ -65,27 +67,21 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ExecutionResult deleteProduct(String productId) {
-        ProductEntity productEntity = productRepository.findById(UUID.fromString(productId)).orElse(null);
+        ProductEntity product = findProductById(UUID.fromString(productId));
 
-        if (productEntity == null) {
-            return new ExecutionResult(FailureType.NOT_FOUND, "Product not found!");
-        }
-
-        productEntity.setDeleted(true);
-        productRepository.save(productEntity);
+        product.setDeleted(true);
+        productRepository.save(product);
 
         return new ExecutionResult("Product removed successfully!");
     }
 
     @Override
     public ExecutionResult updateProduct(String productId, UpdateProductRequest product) {
-        ProductEntity productEntity = productRepository.findById(UUID.fromString(productId)).orElse(null);
+        ProductEntity productEntity = findProductById(UUID.fromString(productId));
 
-        if (productEntity == null) {
-            return new ExecutionResult(FailureType.NOT_FOUND, "Product not found!");
-        }
+        CategoryEntity category = categoryRepository.findById(UUID.fromString(product.getCategoryId()))
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
 
-        CategoryEntity category = categoryRepository.findById(UUID.fromString(product.getCategoryId())).orElse(null);
         productEntity.setCategory(category);
         productEntity.setName(product.getName());
         productEntity.setQuantity(product.getQuantity());
@@ -105,7 +101,6 @@ public class ProductServiceImpl implements ProductService {
         }
 
         productRepository.save(productEntity);
-
         return new ExecutionResult("Product updated successfully!");
     }
 
@@ -115,21 +110,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public TypedResult<ProductDto> getProductById(String productId) {
-        ProductEntity product = productRepository.findProductEntityById(UUID.fromString(productId));
+    public ProductDto getProductById(String productId) {
+        ProductEntity product = findProductById(UUID.fromString(productId));
+        return asDto(product);
+    }
 
-        if (product == null) {
-            return new TypedResult<>(FailureType.NOT_FOUND, "Product not found!");
-        }
-
-        return new TypedResult<>(asDto(product));
+    private ProductEntity findProductById(UUID productId){
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
     }
 
     private ProductDto asDto(ProductEntity productEntity) {
         ProductDto productDto = modelMapper.map(productEntity, ProductDto.class);
         productDto.setId(productEntity.getId().toString());
         productDto.setCategoryName(productEntity.getCategory().getName());
-        List<ImageDto> imageDtos = productEntity.getImages().stream().map(imageEntity -> modelMapper.map(imageEntity, ImageDto.class)).toList();
+        List<ImageDto> imageDtos = productEntity.getImages().stream()
+                .map(imageEntity -> modelMapper.map(imageEntity, ImageDto.class)).toList();
         productDto.setImages(imageDtos);
 
         return productDto;
