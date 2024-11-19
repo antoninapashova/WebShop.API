@@ -18,7 +18,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -90,11 +89,9 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public ExecutionResult deleteItem(UUID itemId) {
-        cartItemRepository.findById(itemId)
-                .orElseThrow(() -> new CartItemNotFoundException("Item not found!"));
-
+        boolean isExists = cartItemRepository.existsById(itemId);
+        if(!isExists) throw new EntityNotFoundException("This item does not exists!");
         cartItemRepository.deleteById(itemId);
-
         return new ExecutionResult("Item removed successfully!");
     }
 
