@@ -2,8 +2,8 @@ package com.example.webshopapi.service;
 
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.entity.SubscriberEntity;
-import com.example.webshopapi.error.exception.InvalidSubscriptionException;
 import com.example.webshopapi.repository.SubscriberRepository;
+import jakarta.persistence.EntityExistsException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ public class SubscriberServiceImpl implements SubscriberService {
     @Override
     public ExecutionResult subscribe(String email) {
         SubscriberEntity subscriber = subscriberRepository.findByEmail(email)
-                .orElseThrow(() -> new InvalidSubscriptionException("You already have subscribed to our newsletter!"));
+                .orElseThrow(() -> new EntityExistsException("You already have subscribed to our newsletter!"));
 
         subscriber.setEmail(email);
         subscriberRepository.save(subscriber);

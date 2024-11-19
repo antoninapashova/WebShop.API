@@ -6,10 +6,10 @@ import com.example.webshopapi.dto.EmailBodyDto;
 import com.example.webshopapi.dto.requestObjects.CreateCouponRequest;
 import com.example.webshopapi.entity.CouponEntity;
 import com.example.webshopapi.error.exception.CouponExpiredException;
-import com.example.webshopapi.error.exception.CouponNotFoundException;
-import com.example.webshopapi.error.exception.ExistingCouponException;
 import com.example.webshopapi.events.SendEmailEvent;
 import com.example.webshopapi.repository.CouponRepository;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -30,14 +30,13 @@ public class CouponServiceImpl implements CouponService {
     @Override
     public ExecutionResult createCoupon(CreateCouponRequest request) {
         if (couponRepository.existsByCode(request.getCode())) {
-            throw new ExistingCouponException("Coupon code already exists!");
+            throw new EntityExistsException("Coupon code already exists!");
         }
 
         CouponEntity coupon = modelMapper.map(request, CouponEntity.class);
         couponRepository.save(coupon);
 
         publisher.publishEvent(new SendEmailEvent(this, "New promo code!", new EmailBodyDto(coupon.getCode(), coupon.getExpirationDate())));
-
         return new ExecutionResult("Coupon created successfully!");
     }
 
@@ -49,7 +48,7 @@ public class CouponServiceImpl implements CouponService {
     @Override
     public CouponEntity getCouponByCode(String code) {
         CouponEntity coupon = couponRepository.findByCode(code)
-                .orElseThrow(() -> new CouponNotFoundException("Coupon with this code not found!"));
+                .orElseThrow(() -> new EntityNotFoundException("Coupon with this code not found!"));
 
         boolean isExpired = couponIsExpired(coupon);
         if (isExpired) {

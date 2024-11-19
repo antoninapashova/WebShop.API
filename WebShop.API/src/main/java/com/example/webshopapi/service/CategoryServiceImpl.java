@@ -3,8 +3,9 @@ package com.example.webshopapi.service;
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.dto.CategoryDto;
 import com.example.webshopapi.entity.CategoryEntity;
-import com.example.webshopapi.error.exception.CategoryNotFoundException;
 import com.example.webshopapi.repository.CategoryRepository;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -40,17 +41,20 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto createNewCategory(String categoryName) {
+    public ExecutionResult createNewCategory(String categoryName) {
+        boolean isExists = categoryRepository.existsByName(categoryName);
+        if(isExists) throw new EntityExistsException("Category with name " + categoryName + " already exists!");
+
         CategoryEntity entity = new CategoryEntity();
         entity.setName(categoryName);
         categoryRepository.save(entity);
-        return asDto(entity);
+        return new ExecutionResult("Category added successfully!");
     }
 
     @Override
     public ExecutionResult deleteCategory(String categoryId) {
         categoryRepository.findById(UUID.fromString(categoryId))
-                .orElseThrow(() -> new CategoryNotFoundException("Category not found!"));
+                .orElseThrow(() -> new EntityNotFoundException("Category not found!"));
 
         categoryRepository.deleteById(UUID.fromString(categoryId));
         return new ExecutionResult("Category removed successfully!");

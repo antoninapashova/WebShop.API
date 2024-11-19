@@ -13,6 +13,8 @@ import com.example.webshopapi.error.exception.InvalidProductException;
 import com.example.webshopapi.error.exception.ProductNotFoundException;
 import com.example.webshopapi.repository.CategoryRepository;
 import com.example.webshopapi.repository.ProductRepository;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -34,13 +36,13 @@ public class ProductServiceImpl implements ProductService {
         boolean isExists = isProductExist(createProductRequest.name);
 
         if (isExists) {
-            throw new InvalidProductException(String.format("Product with name %s already exists", createProductRequest.name));
+            throw new EntityExistsException(String.format("Product with name %s already exists", createProductRequest.name));
         }
 
         ProductEntity product = modelMapper.map(createProductRequest, ProductEntity.class);
 
         CategoryEntity category = categoryRepository.findById(UUID.fromString(createProductRequest.getCategoryId()))
-                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
         product.setCategory(category);
 
         List<ImageEntity> images = Arrays.stream(createProductRequest.getImages()).map(img -> {
@@ -80,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity productEntity = findProductById(UUID.fromString(productId));
 
         CategoryEntity category = categoryRepository.findById(UUID.fromString(product.getCategoryId()))
-                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Category not found!"));
 
         productEntity.setCategory(category);
         productEntity.setName(product.getName());
@@ -117,7 +119,7 @@ public class ProductServiceImpl implements ProductService {
 
     private ProductEntity findProductById(UUID productId){
         return productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
     }
 
     private ProductDto asDto(ProductEntity productEntity) {

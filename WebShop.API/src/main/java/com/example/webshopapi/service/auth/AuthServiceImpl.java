@@ -4,9 +4,8 @@ import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.dto.requestObjects.SignupRequest;
 import com.example.webshopapi.entity.UserEntity;
 import com.example.webshopapi.entity.enums.UserRole;
-import com.example.webshopapi.error.exception.InvalidUserException;
-import com.example.webshopapi.error.exception.UserNotFoundException;
 import com.example.webshopapi.repository.UserRepository;
+import jakarta.persistence.EntityExistsException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,12 +26,12 @@ public class AuthServiceImpl implements AuthService {
     public ExecutionResult createUser(SignupRequest signupRequest) {
         boolean isEmailMatch = hasUserWithEmail(signupRequest.getEmail());
         if (isEmailMatch) {
-            throw new InvalidUserException("User with this email already exists!");
+            throw new EntityExistsException("User with this email already exists!");
         }
 
         boolean isUsernameMatch = hasUserWithUsername(signupRequest.getUsername());
         if (isUsernameMatch) {
-            throw new InvalidUserException("User with this username already exists!");
+            throw new EntityExistsException("User with this username already exists!");
         }
 
         UserEntity userEntity = modelMapper.map(signupRequest, UserEntity.class);
@@ -71,7 +70,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String loadUserRole(String username) {
         UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityExistsException("User not found"));
         return user.getRole().name();
     }
 

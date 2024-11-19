@@ -5,11 +5,8 @@ import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.dto.*;
 import com.example.webshopapi.entity.*;
 import com.example.webshopapi.entity.enums.OrderStatus;
-import com.example.webshopapi.error.exception.CartNotFoundException;
-import com.example.webshopapi.error.exception.CouponNotFoundException;
-import com.example.webshopapi.error.exception.OrderNotFoundException;
-import com.example.webshopapi.error.exception.UserNotFoundException;
 import com.example.webshopapi.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -38,9 +35,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public String createOrder(CreateOrderDto dto) {
         CartEntity cart = cartRepository.getCartEntityByUserId(dto.getUserId());
-        if (cart == null) throw new CartNotFoundException("Tou don't have assigned cart!");
+        if (cart == null) throw new EntityNotFoundException("You don't have assigned cart!");
 
-        UserEntity user = userRepository.findById(dto.getUserId()).orElseThrow(() -> new UserNotFoundException("User not found!"));
+        UserEntity user = userRepository.findById(dto.getUserId()).orElseThrow(() -> new EntityNotFoundException("User not found!"));
 
         OrderEntity order = new OrderEntity();
         order.setUser(user);
@@ -52,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
 
         if (dto.getCouponCode() != null) {
             CouponEntity coupon = couponRepository.findByCode(dto.getCouponCode())
-                    .orElseThrow(() -> new CouponNotFoundException("Coupon with code " + dto.getCouponCode() + " not found!"));
+                    .orElseThrow(() -> new EntityNotFoundException("Coupon with code " + dto.getCouponCode() + " not found!"));
 
             order.setCouponEntity(coupon);
         }
@@ -267,7 +264,7 @@ public class OrderServiceImpl implements OrderService {
 
     private OrderEntity findOrderById(UUID id){
         return orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
     }
 
     private OrderDto asDto(OrderEntity orderEntity) {

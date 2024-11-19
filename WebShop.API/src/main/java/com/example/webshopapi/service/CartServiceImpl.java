@@ -8,18 +8,17 @@ import com.example.webshopapi.entity.CartEntity;
 import com.example.webshopapi.entity.CartItemEntity;
 import com.example.webshopapi.entity.ProductEntity;
 import com.example.webshopapi.entity.UserEntity;
-import com.example.webshopapi.error.exception.CartItemNotFoundException;
-import com.example.webshopapi.error.exception.CartNotFoundException;
-import com.example.webshopapi.error.exception.ProductNotFoundException;
 import com.example.webshopapi.repository.CartItemRepository;
 import com.example.webshopapi.repository.CartRepository;
 import com.example.webshopapi.repository.ProductRepository;
 import com.example.webshopapi.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -34,8 +33,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public ExecutionResult addProductToCart(UUID productId, UUID userId) {
         CartEntity cart = ensureUserHasCart(userId);
-        if (cart == null) throw new CartNotFoundException("Cart not found!");
-
+        if (cart == null) throw new EntityNotFoundException("Cart not found!");
         return assignItemToCartAsync(cart, productId);
     }
 
@@ -44,7 +42,7 @@ public class CartServiceImpl implements CartService {
         CartEntity cart = cartRepository.findByUserId(userId);
 
         if (cart == null) {
-            throw new CartNotFoundException("User has no assigned cart!");
+            throw new EntityNotFoundException("User has no assigned cart!");
         }
 
         CartDto cartEntityDto = modelMapper.map(cart, CartDto.class);
@@ -102,7 +100,7 @@ public class CartServiceImpl implements CartService {
 
     private ExecutionResult assignItemToCartAsync(CartEntity cart, UUID productId) {
         ProductEntity productEntity = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product does not exist!"));
+                .orElseThrow(() -> new EntityNotFoundException("Product does not exist!"));
 
         CartItemEntity cartItem = cart.getItems().stream()
                 .filter(x -> x.getProduct().getId() == productEntity.getId())
@@ -144,7 +142,7 @@ public class CartServiceImpl implements CartService {
 
     private CartItemEntity findItemById(String itemId) {
         return cartItemRepository.findById(UUID.fromString(itemId))
-                .orElseThrow(() -> new CartItemNotFoundException("Cart item not found!"));
+                .orElseThrow(() -> new EntityNotFoundException("Cart item not found!"));
     }
 
     private CartItemDto asCartItemDto(CartItemEntity entity) {
