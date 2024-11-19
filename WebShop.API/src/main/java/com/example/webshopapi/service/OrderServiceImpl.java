@@ -33,7 +33,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public String createOrder(CreateOrderDto dto) {
+    public CreateOrderResponse createOrder(CreateOrderDto dto) {
         CartEntity cart = cartRepository.getCartEntityByUserId(dto.getUserId());
         if (cart == null) throw new EntityNotFoundException("You don't have assigned cart!");
 
@@ -67,7 +67,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         cartRepository.delete(cart);
 
-        return order.getId().toString();
+       return new CreateOrderResponse(order.getId().toString());
     }
 
     @Override

@@ -22,9 +22,9 @@ public class OrderController {
     }
 
     @PostMapping("/create-order")
-    public ResponseEntity<?> createOrder(@AuthenticationPrincipal UserPrinciple principle, @ModelAttribute CreateOrderDto order) {
+    public ResponseEntity<CreateOrderResponse> createOrder(@AuthenticationPrincipal UserPrinciple principle, @ModelAttribute CreateOrderDto order) {
         order.setUserId(principle.getUserId());
-        String result = orderService.createOrder(order);
+        CreateOrderResponse result = orderService.createOrder(order);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -35,31 +35,31 @@ public class OrderController {
     }
 
     @PutMapping("/set-order-approved")
-    public ResponseEntity<?> setOrderApproved(@RequestBody SetOrderStatusRequest request) {
+    public ResponseEntity<ExecutionResult> setOrderApproved(@RequestBody SetOrderStatusRequest request) {
         ExecutionResult result = orderService.setOrderStatus(UUID.fromString(request.orderId), request.isApproved);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @PutMapping("/set-order-status/{orderId}/{status}")
-    public ResponseEntity<?> changeOrderStatus(@PathVariable String orderId, @PathVariable String status) {
+    public ResponseEntity<ExecutionResult> changeOrderStatus(@PathVariable String orderId, @PathVariable String status) {
         ExecutionResult result = orderService.changeOrderStatus(UUID.fromString(orderId), status);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @GetMapping("/get-order-items/{orderId}")
-    public ResponseEntity<?> getOrderItems(@PathVariable String orderId) {
+    public ResponseEntity<List<OrderItemDto>> getOrderItems(@PathVariable String orderId) {
         List<OrderItemDto> result = orderService.getOrderItems(UUID.fromString(orderId));
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @GetMapping("/get-order/{orderId}")
-    public ResponseEntity<?> getOrderById(@PathVariable String orderId){
+    public ResponseEntity<OrderDto> getOrderById(@PathVariable String orderId){
         OrderDto result = orderService.getOrderById(UUID.fromString(orderId));
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @GetMapping("/user/orders")
-    public ResponseEntity<?> getUserOrders(@AuthenticationPrincipal UserPrinciple user){
+    public ResponseEntity<List<UserOrderDto>> getUserOrders(@AuthenticationPrincipal UserPrinciple user){
         List<UserOrderDto> orders = orderService.getUserOrders(user.getUserId());
         return ResponseEntity.status(HttpStatus.OK).body(orders);
     }

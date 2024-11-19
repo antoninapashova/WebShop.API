@@ -16,14 +16,14 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/all-categories")
-    public ResponseEntity<?> getAllCategories() {
+    public ResponseEntity<List<CategoryDto>> getAllCategories() {
         List<CategoryDto> result = categoryService.retrieveAllCategories();
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @PostMapping("/add-category/{categoryName}")
-    public ResponseEntity<CategoryDto> createCategory(@PathVariable String categoryName) {
-        CategoryDto newCategory = categoryService.createNewCategory(categoryName);
+    public ResponseEntity<ExecutionResult> createCategory(@PathVariable String categoryName) {
+        ExecutionResult newCategory = categoryService.createNewCategory(categoryName);
         return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);
     }
 
