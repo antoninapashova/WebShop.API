@@ -2,6 +2,8 @@ package com.example.webshopapi.error;
 
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.error.exception.*;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -12,69 +14,21 @@ import java.util.Date;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ExecutionResult> handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ExecutionResult> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
         ExecutionResult errorDetails = new ExecutionResult(new Date(), ex.getMessage(), request.getDescription(false));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
     }
 
-    @ExceptionHandler(InvalidUserException.class)
-    public ResponseEntity<ExecutionResult> handleInvalidUserException(InvalidUserException ex, WebRequest request) {
+    @ExceptionHandler(EntityExistsException.class)
+    public ResponseEntity<?> handleExistingCouponException(EntityExistsException ex, WebRequest request) {
         ExecutionResult errorDetails = new ExecutionResult(new Date(), ex.getMessage(), request.getDescription(false));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
-    }
-
-    @ExceptionHandler(ExistingCouponException.class)
-    public ResponseEntity<?> handleExistingCouponException(ExistingCouponException ex, WebRequest request) {
-        ExecutionResult errorDetails = new ExecutionResult(new Date(), ex.getMessage(), request.getDescription(false));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
-    }
-
-    @ExceptionHandler(CouponNotFoundException.class)
-    public ResponseEntity<ExecutionResult> handleCouponNotFoundException(CouponNotFoundException ex, WebRequest request) {
-        ExecutionResult errorDetails = new ExecutionResult(new Date(), ex.getMessage(), request.getDescription(false));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDetails);
     }
 
     @ExceptionHandler(CouponExpiredException.class)
     public ResponseEntity<ExecutionResult> handleCouponExpiredException(CouponExpiredException ex, WebRequest request) {
         ExecutionResult errorDetails = new ExecutionResult(new Date(), ex.getMessage(), request.getDescription(false));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
-    }
-
-    @ExceptionHandler(CartItemNotFoundException.class)
-    public ResponseEntity<ExecutionResult> handleCartItemNotFoundException(CartItemNotFoundException ex, WebRequest request) {
-        ExecutionResult errorDetails = new ExecutionResult(new Date(), ex.getMessage(), request.getDescription(false));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
-    }
-
-    @ExceptionHandler(CartNotFoundException.class)
-    public ResponseEntity<ExecutionResult> handleCartNotFoundException(CartNotFoundException ex, WebRequest request) {
-        ExecutionResult errorDetails = new ExecutionResult(new Date(), ex.getMessage(), request.getDescription(false));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
-    }
-
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<ExecutionResult> handleProductNotFoundException(ProductNotFoundException ex, WebRequest request) {
-        ExecutionResult errorDetails = new ExecutionResult(new Date(), ex.getMessage(), request.getDescription(false));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
-    }
-
-    @ExceptionHandler(CategoryNotFoundException.class)
-    public ResponseEntity<ExecutionResult> handleCategoryNotFoundException(CategoryNotFoundException ex, WebRequest request) {
-        ExecutionResult errorDetails = new ExecutionResult(new Date(), ex.getMessage(), request.getDescription(false));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
-    }
-
-    @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<ExecutionResult> handleOrderNotFoundException(OrderNotFoundException ex, WebRequest request) {
-        ExecutionResult errorDetails = new ExecutionResult(new Date(), ex.getMessage(), request.getDescription(false));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
-    }
-
-    @ExceptionHandler(InvalidSubscriptionException.class)
-    public ResponseEntity<ExecutionResult> handleInvalidSubscriptionException(InvalidSubscriptionException ex, WebRequest request) {
-        ExecutionResult errorDetails = new ExecutionResult(new Date(), ex.getMessage(), request.getDescription(false));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 }
