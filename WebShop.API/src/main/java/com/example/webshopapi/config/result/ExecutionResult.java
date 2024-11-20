@@ -21,4 +21,9 @@ public class ExecutionResult {
         this.message = message;
         this.details = description;
     }
+
+    public ExecutionResult(Date date, String message) {
+        this.timestamp = date;
+        this.message = message;
+    }
 }

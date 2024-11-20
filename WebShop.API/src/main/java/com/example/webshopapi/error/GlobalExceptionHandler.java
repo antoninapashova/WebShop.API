@@ -51,6 +51,7 @@ public class GlobalExceptionHandler {
             builder.append(fieldName).append(": ").append(message).append("; ");
         });
 
-        return new ResponseEntity<>(ErrorMapper.createErrorMap(builder.toString()), HttpStatus.BAD_REQUEST);
+        ExecutionResult errorDetails = new ExecutionResult(new Date(), builder.toString());
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 }
