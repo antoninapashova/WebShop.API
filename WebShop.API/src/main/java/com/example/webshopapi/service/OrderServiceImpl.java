@@ -3,6 +3,7 @@ package com.example.webshopapi.service;
 import com.example.webshopapi.config.DateTimeExtension;
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.dto.*;
+import com.example.webshopapi.dto.requestObjects.CreateOrderRequest;
 import com.example.webshopapi.entity.*;
 import com.example.webshopapi.entity.enums.OrderStatus;
 import com.example.webshopapi.repository.*;
@@ -33,7 +34,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public CreateOrderResponse createOrder(CreateOrderDto dto) {
+    public CreateOrderResponse createOrder(CreateOrderRequest dto) {
         CartEntity cart = cartRepository.getCartEntityByUserId(dto.getUserId());
         if (cart == null) throw new EntityNotFoundException("You don't have assigned cart!");
 
