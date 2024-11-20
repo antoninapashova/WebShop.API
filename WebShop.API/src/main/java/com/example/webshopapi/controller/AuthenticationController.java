@@ -6,6 +6,7 @@ import com.example.webshopapi.dto.requestObjects.AuthenticationRequest;
 import com.example.webshopapi.dto.requestObjects.SignupRequest;
 import com.example.webshopapi.service.auth.AuthService;
 import com.example.webshopapi.utils.JwtUtil;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class AuthenticationController {
     private AuthService authService;
 
     @PostMapping("authenticate")
-    public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) {
+    public ResponseEntity<?> login(@Valid @RequestBody AuthenticationRequest authenticationRequest) {
         try {
             authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
@@ -46,7 +47,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("sign-up")
-    public ResponseEntity<?> signUp(@RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<?> signUp(@Valid @RequestBody SignupRequest signupRequest) {
         ExecutionResult result = authService.createUser(signupRequest);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }

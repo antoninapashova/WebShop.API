@@ -5,6 +5,8 @@ import com.example.webshopapi.dto.ProductDto;
 import com.example.webshopapi.dto.requestObjects.CreateProductRequest;
 import com.example.webshopapi.dto.requestObjects.UpdateProductRequest;
 import com.example.webshopapi.service.ProductService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,7 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping("add-product")
-    public ResponseEntity<?> addProduct(@ModelAttribute CreateProductRequest createProductRequest) throws Exception {
+    public ResponseEntity<?> addProduct(@Valid @ModelAttribute CreateProductRequest createProductRequest) throws Exception {
         ExecutionResult result = productService.addProduct(createProductRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
@@ -42,13 +44,13 @@ public class ProductController {
     }
 
     @PutMapping("/update-product/{productId}")
-    public ResponseEntity<?> updateProduct(@PathVariable String productId, @ModelAttribute UpdateProductRequest product) {
+    public ResponseEntity<?> updateProduct(@PathVariable String productId, @Valid @ModelAttribute UpdateProductRequest product) {
         ExecutionResult result = productService.updateProduct(productId, product);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @GetMapping("/get-product/{productId}")
-    public ResponseEntity<?> getProductById(@PathVariable String productId) {
+    public ResponseEntity<?> getProductById(@PathVariable String productId) throws EntityNotFoundException {
         ProductDto result = productService.getProductById(productId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }

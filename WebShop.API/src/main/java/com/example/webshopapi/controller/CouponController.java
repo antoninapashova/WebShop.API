@@ -5,6 +5,7 @@ import com.example.webshopapi.dto.CouponDto;
 import com.example.webshopapi.dto.requestObjects.CreateCouponRequest;
 import com.example.webshopapi.entity.CouponEntity;
 import com.example.webshopapi.service.CouponService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class CouponController {
     private final CouponService couponService;
 
     @PostMapping("/create-coupon")
-    public ResponseEntity<ExecutionResult> createCoupon(@RequestBody CreateCouponRequest request) throws IllegalArgumentException {
+    public ResponseEntity<ExecutionResult> createCoupon(@Valid @RequestBody CreateCouponRequest request) throws IllegalArgumentException {
         ExecutionResult result = couponService.createCoupon(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }

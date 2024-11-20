@@ -2,9 +2,12 @@ package com.example.webshopapi.controller;
 
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.dto.*;
+import com.example.webshopapi.dto.requestObjects.CreateOrderRequest;
 import com.example.webshopapi.dto.requestObjects.SetOrderStatusRequest;
 import com.example.webshopapi.entity.UserPrinciple;
 import com.example.webshopapi.service.OrderService;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,15 +17,12 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@AllArgsConstructor
 public class OrderController {
     private final OrderService orderService;
 
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
-    }
-
     @PostMapping("/create-order")
-    public ResponseEntity<CreateOrderResponse> createOrder(@AuthenticationPrincipal UserPrinciple principle, @ModelAttribute CreateOrderDto order) {
+    public ResponseEntity<CreateOrderResponse> createOrder(@AuthenticationPrincipal UserPrinciple principle, @Valid @ModelAttribute CreateOrderRequest order) {
         order.setUserId(principle.getUserId());
         CreateOrderResponse result = orderService.createOrder(order);
         return ResponseEntity.status(HttpStatus.OK).body(result);
@@ -35,7 +35,7 @@ public class OrderController {
     }
 
     @PutMapping("/set-order-approved")
-    public ResponseEntity<ExecutionResult> setOrderApproved(@RequestBody SetOrderStatusRequest request) {
+    public ResponseEntity<ExecutionResult> setOrderApproved(@Valid @RequestBody SetOrderStatusRequest request) {
         ExecutionResult result = orderService.setOrderStatus(UUID.fromString(request.orderId), request.isApproved);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
