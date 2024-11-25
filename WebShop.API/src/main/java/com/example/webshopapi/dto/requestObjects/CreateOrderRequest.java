@@ -7,7 +7,6 @@ import java.util.UUID;
 
 @Data
 public class CreateOrderRequest {
-    @NotBlank(message = "Id cannot be blank!")
     private UUID userId;
 
     @NotBlank(message = "Address cannot be blank!")

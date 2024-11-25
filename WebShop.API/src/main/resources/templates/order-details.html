@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .email-container {
+            margin: 0 auto;
+            padding: 20px;
+            max-width: 600px;
+            background: #fff;
+            border-radius: 8px;
+         }
+        .order-details {
+            margin-top: 20px;
+        }
+        .order-details th, .order-details td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        .order-details th {
+             background-color: #0073e6;
+             color: #fff;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <h1>Thank you for your order!</h1>
+    <p>Your order has been confirmed. Below are the details:</p>
+    <p>Order number:</p>
+    <p th:text="${orderNumber}">[Order Number]</p>
+    <p>Address:</p>
+    <p th:text="${address}">[Address]</p>
+    <table class="order-details">
+        <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${orderItems}">
+            <td th:text="${item.name}">[Product Name]</td>
+            <td th:text="${item.quantity}">[Quantity]</td>
+            <td th:text="${item.price}">[Price]</td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="2">Total</td>
+            <td th:text="${totalPrice}">[Total Price]</td>
+        </tr>
+        <tr>
+            <td colspan="2">Applied coupon</td>
+            <td th:text="${couponCode}">[Coupon]</td>
+        </tr>
+        <tr>
+            <td colspan="2">Discount</td>
+            <td th:text="${discount}">[Discount]</td>
+        </tr>
+        </tfoot>
+    </table>
+    <p>© 2024 WebShop. All rights reserved.</p>
+</div>
+</body>
+</html>

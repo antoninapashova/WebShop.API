@@ -6,11 +6,14 @@ import com.example.webshopapi.dto.*;
 import com.example.webshopapi.dto.requestObjects.CreateOrderRequest;
 import com.example.webshopapi.entity.*;
 import com.example.webshopapi.entity.enums.OrderStatus;
+import com.example.webshopapi.events.SendEmailEvent;
 import com.example.webshopapi.repository.*;
+import com.example.webshopapi.service.email.TemplateEnum;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -31,6 +34,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
     private final CouponRepository couponRepository;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     @Override
@@ -38,7 +42,8 @@ public class OrderServiceImpl implements OrderService {
         CartEntity cart = cartRepository.getCartEntityByUserId(dto.getUserId());
         if (cart == null) throw new EntityNotFoundException("You don't have assigned cart!");
 
-        UserEntity user = userRepository.findById(dto.getUserId()).orElseThrow(() -> new EntityNotFoundException("User not found!"));
+        UserEntity user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found!"));
 
         OrderEntity order = new OrderEntity();
         order.setUser(user);
@@ -48,11 +53,15 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(OrderStatus.Pending);
         order.setOrderDescription(dto.getDescription());
 
+        Map<String, Object> templateModel = new HashMap<>();
+
         if (dto.getCouponCode() != null) {
             CouponEntity coupon = couponRepository.findByCode(dto.getCouponCode())
                     .orElseThrow(() -> new EntityNotFoundException("Coupon with code " + dto.getCouponCode() + " not found!"));
 
             order.setCouponEntity(coupon);
+            templateModel.put("couponCode", coupon.getCode());
+            templateModel.put("discount", coupon.getDiscount());
         }
 
         List<OrderItem> orderItems = cart.getItems().stream().map(cartItem -> {
@@ -68,7 +77,18 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         cartRepository.delete(cart);
 
-       return new CreateOrderResponse(order.getId().toString());
+        double totalAmount = order.getOrderItems().stream()
+                .mapToDouble(item -> item.getQuantity() * item.getPrice()).sum();
+
+        double amount = order.getCouponEntity() == null ? totalAmount : totalAmount - totalAmount * Math.round(order.getCouponEntity().getDiscount() / 100.0);
+
+        templateModel.put("orderItems", order.getOrderItems());
+        templateModel.put("totalPrice", amount);
+        templateModel.put("orderNumber", order.getId().toString());
+        templateModel.put("address", order.getAddress());
+
+        publisher.publishEvent(new SendEmailEvent(this, "Order details", templateModel, TemplateEnum.ORDER_DETAILS));
+        return new CreateOrderResponse(order.getId().toString());
     }
 
     @Override
@@ -257,13 +277,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void decreaseProductsQuantity(OrderItem orderItem, ProductEntity product) {
-        int quanity = product.getQuantity();
-        quanity -= orderItem.getQuantity();
-        product.setQuantity(quanity);
+        int quantity = product.getQuantity();
+        quantity -= orderItem.getQuantity();
+        product.setQuantity(quantity);
         productRepository.save(product);
     }
 
-    private OrderEntity findOrderById(UUID id){
+    private OrderEntity findOrderById(UUID id) {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
     }

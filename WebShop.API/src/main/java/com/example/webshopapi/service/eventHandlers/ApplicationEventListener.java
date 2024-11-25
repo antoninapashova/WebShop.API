@@ -19,6 +19,6 @@ public class ApplicationEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
     public void processEmail(SendEmailEvent sendEmailEvent) throws MessagingException, IOException {
-       mailSenderService.sendNewMail(sendEmailEvent.getSubject(), sendEmailEvent.getEmailBodyDto());
+       mailSenderService.sendNewMail(sendEmailEvent.getSubject(), sendEmailEvent.getTemplateModel(), sendEmailEvent.getTemplate());
     }
 }

@@ -1,10 +1,10 @@
 package com.example.webshopapi.service.email;
 
-import com.example.webshopapi.dto.EmailBodyDto;
 import jakarta.mail.MessagingException;
 
 import java.io.IOException;
+import java.util.Map;
 
 public interface MailSenderService {
-    void sendNewMail(String subject, EmailBodyDto body) throws MessagingException, IOException;
+    void sendNewMail(String subject, Map<String, Object> templateModel, TemplateEnum template) throws MessagingException, IOException;
 }
