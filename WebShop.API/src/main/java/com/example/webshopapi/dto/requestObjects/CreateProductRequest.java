@@ -19,7 +19,7 @@ public class CreateProductRequest {
     public double price;
 
     @NotBlank(message = "Name cannot be blank!")
-    @Size(min = 10, max = 200)
+    @Size(min = 10)
     public String description;
 
     @NotBlank(message = "Category cannot be blank!")
