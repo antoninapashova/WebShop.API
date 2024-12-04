@@ -5,7 +5,8 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -26,7 +27,6 @@ public class PromotionEntity {
     @Column(nullable = false, name = "discount %")
     private double discount;
 
-    @OneToMany
-    @JoinColumn(name = "promotion_id")
-    private List<ProductEntity> productsInPromotion;
+    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<PromotionProduct> products = new HashSet<>();
 }
