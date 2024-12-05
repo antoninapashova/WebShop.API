@@ -4,15 +4,17 @@ import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.dto.PromotionDto;
 import com.example.webshopapi.entity.ProductEntity;
 import com.example.webshopapi.entity.PromotionEntity;
+import com.example.webshopapi.entity.PromotionProduct;
 import com.example.webshopapi.repository.ProductRepository;
+import com.example.webshopapi.repository.PromotionProductRepository;
 import com.example.webshopapi.repository.PromotionRepository;
 import jakarta.persistence.EntityExistsException;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,10 +26,13 @@ import java.util.*;
 public class PromotionServiceImpl implements PromotionService {
     PromotionRepository promotionRepository;
     ProductRepository productRepository;
+    PromotionProductRepository promotionProductRepository;
 
+    @Transactional
     @Override
-    public ExecutionResult createPromotion(PromotionDto promotionDto) throws ParseException {
+    public ExecutionResult createPromotion(PromotionDto promotionDto) {
         PromotionEntity promotion = new PromotionEntity();
+        promotion.setName(promotionDto.getName());
         promotion.setDiscount(promotionDto.getDiscount());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy HH:mm:ss 'GMT'Z (zzzz)", Locale.ENGLISH);
@@ -41,20 +46,22 @@ public class PromotionServiceImpl implements PromotionService {
         promotion.setStartDate(startDate);
         promotion.setEndDate(endDate);
 
-        List<ProductEntity> products = new ArrayList<>();
+        PromotionProduct productPromotion = new PromotionProduct();
 
         promotionDto.getProductsInPromotion().forEach(e -> {
             ProductEntity productEntity = productRepository.findById(UUID.fromString(e))
                     .orElseThrow(() -> new EntityExistsException("You already have subscribed to our newsletter!"));
 
             double newPrice = productEntity.getPrice() - productEntity.getPrice() * promotionDto.getDiscount() / 100;
-            productEntity.setPromotionPrice(newPrice);
-            products.add(productEntity);
+
+            productPromotion.setProduct(productEntity);
+            productPromotion.setPromotion(promotion);
+            productPromotion.setActive(!startDate.isAfter(LocalDateTime.now()));
+            productPromotion.setPriceInPromotion(newPrice);
         });
 
-        promotion.setProductsInPromotion(products);
-
         promotionRepository.save(promotion);
+        promotionProductRepository.save(productPromotion);
         return new ExecutionResult("Promotion is set successfully!");
     }
 }

@@ -10,6 +10,7 @@ public class ProductDto {
     public String name;
     public int quantity;
     public double price;
+    public double promotionPrice;
     public String description;
     public String categoryName;
     public List<ImageDto> images;

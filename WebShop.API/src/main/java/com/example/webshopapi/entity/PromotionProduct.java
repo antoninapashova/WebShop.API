@@ -24,5 +24,5 @@ public class PromotionProduct {
     private PromotionEntity promotion;
 
     private boolean isActive;
-    private boolean priceInPromotion;
+    private double priceInPromotion;
 }
