@@ -46,11 +46,11 @@ public class PromotionServiceImpl implements PromotionService {
         promotion.setStartDate(startDate);
         promotion.setEndDate(endDate);
 
-        PromotionProduct productPromotion = new PromotionProduct();
-
         promotionDto.getProductsInPromotion().forEach(e -> {
+            PromotionProduct productPromotion = new PromotionProduct();
+
             ProductEntity productEntity = productRepository.findById(UUID.fromString(e))
-                    .orElseThrow(() -> new EntityExistsException("You already have subscribed to our newsletter!"));
+                    .orElseThrow(() -> new EntityExistsException("Product not found!"));
 
             double newPrice = productEntity.getPrice() - productEntity.getPrice() * promotionDto.getDiscount() / 100;
 
@@ -58,10 +58,11 @@ public class PromotionServiceImpl implements PromotionService {
             productPromotion.setPromotion(promotion);
             productPromotion.setActive(!startDate.isAfter(LocalDateTime.now()));
             productPromotion.setPriceInPromotion(newPrice);
+
+            promotionRepository.save(promotion);
+            promotionProductRepository.save(productPromotion);
         });
 
-        promotionRepository.save(promotion);
-        promotionProductRepository.save(productPromotion);
         return new ExecutionResult("Promotion is set successfully!");
     }
 }
