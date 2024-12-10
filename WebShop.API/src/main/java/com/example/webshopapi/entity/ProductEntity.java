@@ -26,8 +26,6 @@ public class ProductEntity {
     @Column(nullable = false)
     private double price;
 
-    private double promotionPrice;
-
     private boolean isDeleted;
 
     @Column(nullable = false)

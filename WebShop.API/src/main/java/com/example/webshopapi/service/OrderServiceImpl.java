@@ -25,7 +25,7 @@ import java.util.*;
 @Service
 @AllArgsConstructor
 public class OrderServiceImpl implements OrderService {
-    final static DateTimeFormatter CUSTOM_FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+    final static DateTimeFormatter CUSTOM_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;

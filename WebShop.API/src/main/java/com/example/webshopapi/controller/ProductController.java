@@ -2,6 +2,7 @@ package com.example.webshopapi.controller;
 
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.dto.ProductDto;
+import com.example.webshopapi.dto.PromotionProductDto;
 import com.example.webshopapi.dto.requestObjects.CreateProductRequest;
 import com.example.webshopapi.dto.requestObjects.UpdateProductRequest;
 import com.example.webshopapi.service.ProductService;
@@ -26,8 +27,8 @@ public class ProductController {
     }
 
     @GetMapping("/all-products")
-    public ResponseEntity<List<ProductDto>> getAllProduct() {
-        List<ProductDto> allProducts = productService.retrieveAllProducts();
+    public ResponseEntity<List<PromotionProductDto>> getAllProduct() {
+        List<PromotionProductDto> allProducts = productService.retrieveAllProducts();
         return ResponseEntity.status(HttpStatus.OK).body(allProducts);
     }
 

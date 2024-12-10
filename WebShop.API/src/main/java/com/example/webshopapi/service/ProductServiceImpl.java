@@ -3,11 +3,13 @@ package com.example.webshopapi.service;
 import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.dto.ImageDto;
 import com.example.webshopapi.dto.ProductDto;
+import com.example.webshopapi.dto.PromotionProductDto;
 import com.example.webshopapi.dto.requestObjects.CreateProductRequest;
 import com.example.webshopapi.dto.requestObjects.UpdateProductRequest;
 import com.example.webshopapi.entity.CategoryEntity;
 import com.example.webshopapi.entity.ImageEntity;
 import com.example.webshopapi.entity.ProductEntity;
+import com.example.webshopapi.projection.Product;
 import com.example.webshopapi.repository.CategoryRepository;
 import com.example.webshopapi.repository.ProductRepository;
 import jakarta.persistence.EntityExistsException;
@@ -20,6 +22,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
+import static com.example.webshopapi.service.OrderServiceImpl.CUSTOM_FORMATTER;
 
 @Service
 @RequiredArgsConstructor
@@ -57,11 +61,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDto> retrieveAllProducts() {
-        return productRepository.findAll()
-                .stream()
-                .filter(product -> !product.isDeleted())
-                .map(this::asDto).toList();
+    public List<PromotionProductDto> retrieveAllProducts() {
+        List<Product> result = productRepository.findAllProducts();
+        return result.stream().map(this::asDto).toList();
     }
 
     @Override
@@ -114,7 +116,7 @@ public class ProductServiceImpl implements ProductService {
         return asDto(product);
     }
 
-    private ProductEntity findProductById(UUID productId){
+    private ProductEntity findProductById(UUID productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
     }
@@ -126,6 +128,24 @@ public class ProductServiceImpl implements ProductService {
         List<ImageDto> imageDtos = productEntity.getImages().stream()
                 .map(imageEntity -> modelMapper.map(imageEntity, ImageDto.class)).toList();
         productDto.setImages(imageDtos);
+
+        return productDto;
+    }
+
+    private PromotionProductDto asDto(Product product) {
+        PromotionProductDto productDto = modelMapper.map(product, PromotionProductDto.class);
+        productDto.setProductId(product.getProductId());
+
+        String endDate = product.getEndDate() != null ? product.getEndDate().format(CUSTOM_FORMATTER) : "";
+
+        CategoryEntity categoryEntity = categoryRepository
+                .findById(product.getCategoryId()).orElseThrow(() -> new EntityNotFoundException("Category not found!"));
+
+        productDto.setCategoryName(categoryEntity.getName());
+        productDto.setEndDate(endDate);
+
+        List<byte[]> array = Arrays.stream(product.getImages()).toList();
+        productDto.setImages(array);
 
         return productDto;
     }
