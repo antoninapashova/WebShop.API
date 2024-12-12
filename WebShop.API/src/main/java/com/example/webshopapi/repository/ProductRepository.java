@@ -26,7 +26,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
             p.description AS description, 
             p.price,
             pp.price_in_promotion AS priceInPromotion,
-            pp.is_active AS isActive,
+            pr.is_active AS isActive,
             pr.end_date AS endDate,
             (
                 SELECT array_agg(im.image_data)
@@ -38,7 +38,25 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
                 ON p.id = pp.product_id 
             LEFT JOIN promotions pr 
                 ON pp.promotion_id = pr.id 
-            WHERE p.is_deleted = false AND (pp.is_active = true OR pp.is_active IS NULL)
+            WHERE p.is_deleted = false OR pr.is_active = true
             """, nativeQuery = true)
     List<Product> findAllProducts();
+
+    @Query(value = """
+            SELECT 
+            p.id,
+            p.name,
+            p.description, 
+            p.price,
+            p.quantity,
+            p.category_id,
+            p.is_deleted
+            FROM products p 
+            LEFT JOIN promotion_product pp 
+                ON p.id = pp.product_id 
+            LEFT JOIN promotions pr 
+                ON pp.promotion_id = pr.id 
+            WHERE p.is_deleted = false AND pr.is_active = false
+            """, nativeQuery = true)
+    List<ProductEntity> findAllNonPromotionalProducts();
 }

@@ -55,4 +55,10 @@ public class ProductController {
         ProductDto result = productService.getProductById(productId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @GetMapping("/get-non-promotional-products")
+    public ResponseEntity<List<ProductDto>> getAllNonPromotionalProducts() {
+        List<ProductDto> nonPromotionalProducts = productService.fetchOnlyNonePromotionalProducts();
+        return ResponseEntity.status(HttpStatus.OK).body(nonPromotionalProducts);
+    }
 }

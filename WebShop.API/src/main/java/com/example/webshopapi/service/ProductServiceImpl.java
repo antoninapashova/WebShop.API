@@ -116,6 +116,14 @@ public class ProductServiceImpl implements ProductService {
         return asDto(product);
     }
 
+    @Override
+    public List<ProductDto> fetchOnlyNonePromotionalProducts(){
+        return productRepository.findAllNonPromotionalProducts()
+                .stream()
+                .map(this::asDto)
+                .toList();
+    }
+
     private ProductEntity findProductById(UUID productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));

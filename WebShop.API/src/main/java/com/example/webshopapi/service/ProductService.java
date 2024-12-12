@@ -15,4 +15,5 @@ public interface ProductService {
     ExecutionResult updateProduct(String productId, UpdateProductRequest productD);
     List<ProductDto> fetchAllByName(String name);
     ProductDto getProductById(String productId);
+    List<ProductDto> fetchOnlyNonePromotionalProducts();
 }
