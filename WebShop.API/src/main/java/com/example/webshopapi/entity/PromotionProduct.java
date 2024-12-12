@@ -23,6 +23,5 @@ public class PromotionProduct {
     @JoinColumn(name = "promotion_id", nullable = false)
     private PromotionEntity promotion;
 
-    private boolean isActive;
     private double priceInPromotion;
 }

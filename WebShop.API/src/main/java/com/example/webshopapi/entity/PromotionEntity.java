@@ -30,6 +30,9 @@ public class PromotionEntity {
     @Column(nullable = false, name = "discount %")
     private double discount;
 
+    @Column(nullable = false)
+    private boolean isActive;
+
     @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PromotionProduct> products = new HashSet<>();
 }

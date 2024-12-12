@@ -45,6 +45,7 @@ public class PromotionServiceImpl implements PromotionService {
 
         promotion.setStartDate(startDate);
         promotion.setEndDate(endDate);
+        promotion.setActive(!startDate.isAfter(LocalDateTime.now()));
 
         promotionDto.getProductsInPromotion().forEach(e -> {
             PromotionProduct productPromotion = new PromotionProduct();
@@ -56,7 +57,6 @@ public class PromotionServiceImpl implements PromotionService {
 
             productPromotion.setProduct(productEntity);
             productPromotion.setPromotion(promotion);
-            productPromotion.setActive(!startDate.isAfter(LocalDateTime.now()));
             productPromotion.setPriceInPromotion(newPrice);
 
             promotionRepository.save(promotion);
