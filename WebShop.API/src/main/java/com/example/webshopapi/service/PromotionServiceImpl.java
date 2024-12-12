@@ -65,4 +65,10 @@ public class PromotionServiceImpl implements PromotionService {
 
         return new ExecutionResult("Promotion is set successfully!");
     }
+
+    @Transactional
+    @Override
+    public void deactivateExpiredPromotions() {
+        promotionRepository.deactivateExpiredPromotions(LocalDateTime.now());
+    }
 }

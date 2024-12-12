@@ -7,4 +7,5 @@ import java.text.ParseException;
 
 public interface PromotionService {
    ExecutionResult createPromotion(PromotionDto promotionDto) throws ParseException;
+   void deactivateExpiredPromotions();
 }
