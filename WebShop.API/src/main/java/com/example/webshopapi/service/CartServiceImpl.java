@@ -90,14 +90,14 @@ public class CartServiceImpl implements CartService {
     @Override
     public ExecutionResult deleteItem(UUID itemId) {
         boolean isExists = cartItemRepository.existsById(itemId);
-        if(!isExists) throw new EntityNotFoundException("This item does not exists!");
+        if (!isExists) throw new EntityNotFoundException("This item does not exists!");
         cartItemRepository.deleteById(itemId);
         return new ExecutionResult("Item removed successfully!");
     }
 
     private ExecutionResult assignItemToCartAsync(CartEntity cart, UUID productId) {
         ProductEntity productEntity = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("Product does not exist!"));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found!"));
 
         CartItemEntity cartItem = cart.getItems().stream()
                 .filter(x -> x.getProduct().getId() == productEntity.getId())
@@ -144,9 +144,25 @@ public class CartServiceImpl implements CartService {
 
     private CartItemDto asCartItemDto(CartItemEntity entity) {
         CartItemDto dto = modelMapper.map(entity, CartItemDto.class);
-        dto.setPrice(entity.getProduct().getPrice());
+
+        boolean isInPromotion = isProductInActivePromotion(entity.getProduct().getId());
+        if (!isInPromotion) {
+            dto.setPrice(entity.getProduct().getPrice());
+        } else {
+            double promotionalPrice = getPromotionalPrice(entity.getProduct().getId());
+            dto.setPrice(promotionalPrice);
+        }
+
         dto.setName(entity.getProduct().getName());
         dto.setImg(entity.getProduct().getImages().getFirst().getImg());
         return dto;
+    }
+
+    private boolean isProductInActivePromotion(UUID productId) {
+        return productRepository.isProductInActivePromotion(productId);
+    }
+
+    private double getPromotionalPrice(UUID productId){
+        return productRepository.getPromotionalPrice(productId);
     }
 }
