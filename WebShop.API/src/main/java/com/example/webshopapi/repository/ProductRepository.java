@@ -39,7 +39,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
                 ON p.id = pp.product_id 
             LEFT JOIN promotions pr 
                 ON pp.promotion_id = pr.id 
-            WHERE p.is_deleted = false OR pr.is_active = true
+            WHERE p.is_deleted = false
             """, nativeQuery = true)
     List<Product> findAllProducts();
 
@@ -53,33 +53,19 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
             p.category_id,
             p.is_deleted
             FROM products p 
-            LEFT JOIN promotion_product pp 
-                ON p.id = pp.product_id 
-            LEFT JOIN promotions pr 
-                ON pp.promotion_id = pr.id 
-            WHERE p.is_deleted = false AND pr.is_active = false
+            WHERE not p.is_deleted
+            AND not EXISTS(select null from promotions pr where pr.is_active and pr.id in 
+            (select pp.promotion_id from promotion_product pp where pp.product_id = p.id))
             """, nativeQuery = true)
     List<ProductEntity> findAllNonPromotionalProducts();
 
     @Query(value = """
-            SELECT pr.is_active
-            FROM products p
-            LEFT JOIN promotion_product pp
-                ON p.id = pp.product_id
-            LEFT JOIN promotions pr
-                ON pp.promotion_id = pr.id
-            WHERE p.id = :productId AND p.is_deleted = false AND pr.is_active = true
-            """, nativeQuery = true)
-    boolean isProductInActivePromotion(@PathVariable("productId") UUID productId);
-
-    @Query(value = """
             SELECT pp.price_in_promotion
-            FROM products p
-            LEFT JOIN promotion_product pp
-                ON p.id = pp.product_id
-            LEFT JOIN promotions pr
-                ON pp.promotion_id = pr.id
-            WHERE p.id = :productId AND p.is_deleted = false AND pr.is_active = true
+            FROM promotion_product pp
+            JOIN products p ON p.id = :productId 
+               AND NOT p.is_deleted AND p.id = pp.product_id
+            WHERE EXISTS (SELECT null FROM promotions pr 
+                          WHERE pr.id = pp.promotion_id AND pr.is_active)
             """, nativeQuery = true)
-    double getPromotionalPrice(@PathVariable("productId") UUID productId);
+    Double findPromotionalPrice(@PathVariable("productId") UUID productId);
 }

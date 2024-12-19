@@ -145,24 +145,13 @@ public class CartServiceImpl implements CartService {
     private CartItemDto asCartItemDto(CartItemEntity entity) {
         CartItemDto dto = modelMapper.map(entity, CartItemDto.class);
 
-        boolean isInPromotion = isProductInActivePromotion(entity.getProduct().getId());
-        if (!isInPromotion) {
-            dto.setPrice(entity.getProduct().getPrice());
-        } else {
-            double promotionalPrice = getPromotionalPrice(entity.getProduct().getId());
-            dto.setPrice(promotionalPrice);
-        }
+        dto.setPrice(productRepository.findPromotionalPrice(entity.getProduct().getId()) != null
+                ? productRepository.findPromotionalPrice(entity.getProduct().getId())
+                : entity.getProduct().getPrice());
 
         dto.setName(entity.getProduct().getName());
         dto.setImg(entity.getProduct().getImages().getFirst().getImg());
+
         return dto;
-    }
-
-    private boolean isProductInActivePromotion(UUID productId) {
-        return productRepository.isProductInActivePromotion(productId);
-    }
-
-    private double getPromotionalPrice(UUID productId){
-        return productRepository.getPromotionalPrice(productId);
     }
 }
