@@ -6,7 +6,9 @@ import com.example.webshopapi.dto.requestObjects.ChangeCartItemQuantityRequest;
 import com.example.webshopapi.dto.requestObjects.SetCartItemQuantityRequest;
 import com.example.webshopapi.entity.UserPrinciple;
 import com.example.webshopapi.service.CartService;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,8 +18,9 @@ import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CartController {
-    private final CartService cartService;
+    CartService cartService;
 
     @PostMapping("/add-to-cart/{productId}")
     public ResponseEntity<ExecutionResult> addProductToCart(@PathVariable String productId, @AuthenticationPrincipal UserPrinciple user) throws Exception {

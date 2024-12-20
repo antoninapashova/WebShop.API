@@ -7,7 +7,9 @@ import com.example.webshopapi.dto.requestObjects.SignupRequest;
 import com.example.webshopapi.service.auth.AuthService;
 import com.example.webshopapi.utils.JwtUtil;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,11 +21,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationController {
-    private AuthenticationManager authenticationManager;
-    private UserDetailsService userDetailsService;
-    private JwtUtil jwtUtil;
-    private AuthService authService;
+    AuthenticationManager authenticationManager;
+    UserDetailsService userDetailsService;
+    JwtUtil jwtUtil;
+    AuthService authService;
 
     @PostMapping("authenticate")
     public ResponseEntity<?> login(@Valid @RequestBody AuthenticationRequest authenticationRequest) {

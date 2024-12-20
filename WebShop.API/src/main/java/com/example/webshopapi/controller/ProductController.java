@@ -17,8 +17,9 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductController {
-    private ProductService productService;
+    ProductService productService;
 
     @PostMapping("add-product")
     public ResponseEntity<?> addProduct(@Valid @ModelAttribute CreateProductRequest createProductRequest) throws Exception {

@@ -13,7 +13,9 @@ import com.example.webshopapi.repository.CartRepository;
 import com.example.webshopapi.repository.ProductRepository;
 import com.example.webshopapi.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +24,13 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CartServiceImpl implements CartService {
-    private final CartRepository cartRepository;
-    private final ProductRepository productRepository;
-    private final CartItemRepository cartItemRepository;
-    private final UserRepository userRepository;
-    private final ModelMapper modelMapper;
+    CartRepository cartRepository;
+    ProductRepository productRepository;
+    CartItemRepository cartItemRepository;
+    UserRepository userRepository;
+    ModelMapper modelMapper;
 
     @Override
     public ExecutionResult addProductToCart(UUID productId, UUID userId) {

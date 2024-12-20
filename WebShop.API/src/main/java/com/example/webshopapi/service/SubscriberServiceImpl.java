@@ -4,13 +4,16 @@ import com.example.webshopapi.config.result.ExecutionResult;
 import com.example.webshopapi.entity.SubscriberEntity;
 import com.example.webshopapi.repository.SubscriberRepository;
 import jakarta.persistence.EntityExistsException;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SubscriberServiceImpl implements SubscriberService {
-    private final SubscriberRepository subscriberRepository;
+   SubscriberRepository subscriberRepository;
 
     @Override
     public ExecutionResult subscribe(String email) {

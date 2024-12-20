@@ -6,7 +6,9 @@ import com.example.webshopapi.dto.requestObjects.CreateCouponRequest;
 import com.example.webshopapi.entity.CouponEntity;
 import com.example.webshopapi.service.CouponService;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +17,9 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CouponController {
-    private final CouponService couponService;
+    CouponService couponService;
 
     @PostMapping("/create-coupon")
     public ResponseEntity<ExecutionResult> createCoupon(@Valid @RequestBody CreateCouponRequest request) throws IllegalArgumentException {

@@ -6,7 +6,9 @@ import com.example.webshopapi.entity.CategoryEntity;
 import com.example.webshopapi.repository.CategoryRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +18,10 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CategoryServiceImpl implements CategoryService {
-    private final CategoryRepository categoryRepository;
-    private final ModelMapper modelMapper;
+    CategoryRepository categoryRepository;
+    ModelMapper modelMapper;
 
     @Override
     public void initCategories() {

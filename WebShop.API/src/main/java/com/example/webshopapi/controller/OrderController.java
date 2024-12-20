@@ -7,7 +7,9 @@ import com.example.webshopapi.dto.requestObjects.SetOrderStatusRequest;
 import com.example.webshopapi.entity.UserPrinciple;
 import com.example.webshopapi.service.OrderService;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,8 +20,9 @@ import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderController {
-    private final OrderService orderService;
+    OrderService orderService;
 
     @PostMapping("/create-order")
     public ResponseEntity<CreateOrderResponse> createOrder(@AuthenticationPrincipal UserPrinciple principle, @Valid @ModelAttribute CreateOrderRequest order) {

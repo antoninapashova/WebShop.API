@@ -6,7 +6,9 @@ import com.example.webshopapi.entity.UserEntity;
 import com.example.webshopapi.entity.enums.UserRole;
 import com.example.webshopapi.repository.UserRepository;
 import jakarta.persistence.EntityExistsException;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,11 +19,11 @@ import java.util.Arrays;
 
 @Service
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthServiceImpl implements AuthService {
-
-    private UserRepository userRepository;
-    private ModelMapper modelMapper;
-    private PasswordEncoder passwordEncoder;
+    UserRepository userRepository;
+    ModelMapper modelMapper;
+    PasswordEncoder passwordEncoder;
 
     public ExecutionResult createUser(SignupRequest signupRequest) {
         boolean isEmailMatch = hasUserWithEmail(signupRequest.getEmail());

@@ -14,7 +14,9 @@ import com.example.webshopapi.repository.CategoryRepository;
 import com.example.webshopapi.repository.ProductRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -27,10 +29,11 @@ import static com.example.webshopapi.service.OrderServiceImpl.CUSTOM_FORMATTER;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductServiceImpl implements ProductService {
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
-    private final ModelMapper modelMapper;
+    ProductRepository productRepository;
+    CategoryRepository categoryRepository;
+    ModelMapper modelMapper;
 
     @Override
     public ExecutionResult addProduct(CreateProductRequest createProductRequest) {

@@ -11,7 +11,9 @@ import com.example.webshopapi.repository.*;
 import com.example.webshopapi.service.email.TemplateEnum;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -24,17 +26,18 @@ import java.util.*;
 
 @Service
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderServiceImpl implements OrderService {
     final static DateTimeFormatter CUSTOM_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
-    private final OrderRepository orderRepository;
-    private final CartRepository cartRepository;
-    private final ModelMapper modelMapper;
-    private final UserRepository userRepository;
-    private final OrderItemRepository orderItemRepository;
-    private final ProductRepository productRepository;
-    private final CouponRepository couponRepository;
-    private final ApplicationEventPublisher publisher;
+    OrderRepository orderRepository;
+    CartRepository cartRepository;
+    ModelMapper modelMapper;
+    UserRepository userRepository;
+    OrderItemRepository orderItemRepository;
+    ProductRepository productRepository;
+    CouponRepository couponRepository;
+    ApplicationEventPublisher publisher;
 
     @Transactional
     @Override

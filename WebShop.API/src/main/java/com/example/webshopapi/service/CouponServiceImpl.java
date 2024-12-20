@@ -11,7 +11,9 @@ import com.example.webshopapi.service.email.TemplateEnum;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -22,10 +24,11 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CouponServiceImpl implements CouponService {
-    private final CouponRepository couponRepository;
-    private final ModelMapper modelMapper;
-    private final ApplicationEventPublisher publisher;
+    CouponRepository couponRepository;
+    ModelMapper modelMapper;
+    ApplicationEventPublisher publisher;
 
     @Transactional
     @Override
