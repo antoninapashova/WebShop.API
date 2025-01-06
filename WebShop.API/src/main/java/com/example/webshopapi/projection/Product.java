@@ -6,7 +6,7 @@ import java.util.UUID;
 public interface Product {
      UUID getProductId();
      String getProductName();
-     UUID getCategoryId();
+     String getCategoryName();
      String getDescription();
      double getPrice();
      Double getPriceInPromotion();

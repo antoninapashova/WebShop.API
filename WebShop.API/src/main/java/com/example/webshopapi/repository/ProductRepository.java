@@ -20,26 +20,28 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
     List<ProductEntity> findAllByName(String name);
 
     @Query(value = """
-            SELECT 
-            p.id AS productId,
-            p.name as productName,
-            p.category_id AS categoryId, 
-            p.description AS description, 
-            p.price,
-            pp.price_in_promotion AS priceInPromotion,
-            pr.is_active AS isActive,
-            pr.end_date AS endDate,
-            (
-                SELECT array_agg(im.image_data)
-                FROM images im
-                WHERE im.product_id = p.id
-            ) AS images
-            FROM products p 
-            LEFT JOIN promotion_product pp 
-                ON p.id = pp.product_id 
-            LEFT JOIN promotions pr 
-                ON pp.promotion_id = pr.id 
-            WHERE p.is_deleted = false
+            SELECT
+                       p.id AS productId,
+                       p.name as productName,
+                       p.description AS description,
+                       p.price,
+                       c.name AS categoryName,
+                       pp.price_in_promotion AS priceInPromotion,
+                       pr.is_active AS isActive,
+                       pr.end_date AS endDate,
+                       (
+                           SELECT array_agg(im.image_data)
+                           FROM images im
+                           WHERE im.product_id = p.id
+                       ) AS images
+                       FROM products p
+                       JOIN categories c 
+                          on c.id = p.category_id
+                       LEFT JOIN promotion_product pp
+                           ON p.id = pp.product_id
+                       LEFT JOIN promotions pr
+                           ON pp.promotion_id = pr.id
+                       WHERE p.is_deleted = false
             """, nativeQuery = true)
     List<Product> findAllProducts();
 

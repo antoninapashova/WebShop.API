@@ -9,6 +9,7 @@ import com.example.webshopapi.dto.requestObjects.UpdateProductRequest;
 import com.example.webshopapi.entity.CategoryEntity;
 import com.example.webshopapi.entity.ImageEntity;
 import com.example.webshopapi.entity.ProductEntity;
+import com.example.webshopapi.mapper.ProductMapper;
 import com.example.webshopapi.projection.Product;
 import com.example.webshopapi.repository.CategoryRepository;
 import com.example.webshopapi.repository.ProductRepository;
@@ -34,6 +35,7 @@ public class ProductServiceImpl implements ProductService {
     ProductRepository productRepository;
     CategoryRepository categoryRepository;
     ModelMapper modelMapper;
+    ProductMapper mapper;
 
     @Override
     public ExecutionResult addProduct(CreateProductRequest createProductRequest) {
@@ -144,19 +146,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private PromotionProductDto asDto(Product product) {
-        PromotionProductDto productDto = modelMapper.map(product, PromotionProductDto.class);
-        productDto.setProductId(product.getProductId());
+        PromotionProductDto productDto = mapper.toDto(product);
 
         String endDate = product.getEndDate() != null ? product.getEndDate().format(CUSTOM_FORMATTER) : "";
-
-        CategoryEntity categoryEntity = categoryRepository
-                .findById(product.getCategoryId()).orElseThrow(() -> new EntityNotFoundException("Category not found!"));
-
-        productDto.setCategoryName(categoryEntity.getName());
         productDto.setEndDate(endDate);
-
-        List<byte[]> array = Arrays.stream(product.getImages()).toList();
-        productDto.setImages(array);
 
         return productDto;
     }
