@@ -40,4 +40,7 @@ public class ProductEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PromotionProduct> promotions = new HashSet<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private Set<RatingEntity> ratings;
 }
