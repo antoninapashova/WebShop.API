@@ -21,27 +21,27 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
 
     @Query(value = """
             SELECT
-                       p.id AS productId,
-                       p.name as productName,
-                       p.description AS description,
-                       p.price,
-                       c.name AS categoryName,
-                       pp.price_in_promotion AS priceInPromotion,
-                       pr.is_active AS isActive,
-                       pr.end_date AS endDate,
-                       (
-                           SELECT array_agg(im.image_data)
-                           FROM images im
-                           WHERE im.product_id = p.id
-                       ) AS images
-                       FROM products p
-                       JOIN categories c 
-                          on c.id = p.category_id
-                       LEFT JOIN promotion_product pp
-                           ON p.id = pp.product_id
-                       LEFT JOIN promotions pr
-                           ON pp.promotion_id = pr.id
-                       WHERE p.is_deleted = false
+               p.id AS productId,
+               p.name as productName,
+               p.description AS description,
+               p.price,
+               c.name AS categoryName,
+               pp.price_in_promotion AS priceInPromotion,
+               pr.is_active AS isActive,
+               pr.end_date AS endDate,
+               (
+                   SELECT array_agg(im.image_data)
+                   FROM images im
+                   WHERE im.product_id = p.id
+               ) AS images
+               FROM products p
+               JOIN categories c 
+                  on c.id = p.category_id
+               LEFT JOIN promotion_product pp
+                   ON p.id = pp.product_id
+               LEFT JOIN promotions pr
+                   ON pp.promotion_id = pr.id
+               WHERE p.is_deleted = false
             """, nativeQuery = true)
     List<Product> findAllProducts();
 
@@ -56,8 +56,8 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
             p.is_deleted
             FROM products p 
             WHERE not p.is_deleted
-            AND not EXISTS(select null from promotions pr where pr.is_active and pr.id in 
-            (select pp.promotion_id from promotion_product pp where pp.product_id = p.id))
+            AND not EXISTS(SELECT null FROM promotions pr where pr.is_active and pr.id in 
+            (SELECT pp.promotion_id FROM promotion_product pp where pp.product_id = p.id))
             """, nativeQuery = true)
     List<ProductEntity> findAllNonPromotionalProducts();
 
