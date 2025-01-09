@@ -1,6 +1,8 @@
 package com.example.webshopapi.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -15,6 +17,9 @@ public class RatingEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false)
+    @Min(1)
+    @Max(5)
     private int score;
 
     @ManyToOne
