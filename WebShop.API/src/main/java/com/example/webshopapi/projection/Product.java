@@ -13,4 +13,5 @@ public interface Product {
      Boolean getIsActive();
      LocalDateTime getEndDate();
      byte[][] getImages();
+     double getRating();
 }

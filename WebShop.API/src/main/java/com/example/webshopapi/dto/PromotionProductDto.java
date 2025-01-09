@@ -16,4 +16,5 @@ public class PromotionProductDto {
     public Boolean isActive;
     public List<byte[]> images;
     public String endDate;
+    public double rating;
 }

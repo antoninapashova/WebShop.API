@@ -33,7 +33,12 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
                    SELECT array_agg(im.image_data)
                    FROM images im
                    WHERE im.product_id = p.id
-               ) AS images
+               ) AS images,
+               (
+                   SELECT ROUND(AVG(rt.score), 1)
+                   FROM ratings rt
+                   WHERE rt.product_id = p.id
+               ) AS rating
                FROM products p
                JOIN categories c 
                   on c.id = p.category_id
