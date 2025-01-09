@@ -35,7 +35,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
                    WHERE im.product_id = p.id
                ) AS images,
                (
-                   SELECT ROUND(AVG(rt.score), 1)
+                   SELECT COALESCE(ROUND(AVG(rt.score), 1), 0.0)
                    FROM ratings rt
                    WHERE rt.product_id = p.id
                ) AS rating
