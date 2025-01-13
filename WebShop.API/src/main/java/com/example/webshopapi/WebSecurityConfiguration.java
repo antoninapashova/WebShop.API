@@ -51,10 +51,11 @@ public class WebSecurityConfiguration {
                                 "/swagger-ui/**",
                                 "/webjars/**")
                         .permitAll()
-                        .requestMatchers("/all-products", "/search/{name}").hasAnyRole("ADMIN", "CUSTOMER")
+                        .requestMatchers("/all-products", "/search/{name}",
+                                "/all-categories").hasAnyRole("ADMIN", "CUSTOMER")
                         .requestMatchers("/add-product", "/all-orders",
                                 "/set-order-approved", "/delete-product/{productId}",
-                                "/update-product/{productId}", "/all-categories",
+                                "/update-product/{productId}",
                                 "/add-category/{categoryName}", "/set-order-status/{orderId}/{status}",
                                 "/get-order-items/{orderId}", "/get-product/{productId}",
                                 "/delete-image/{productId}/{imageId}", "/create-coupon",
